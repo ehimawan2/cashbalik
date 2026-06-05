@@ -12,8 +12,8 @@
   /* Sidebar */
   .sidebar { width:240px; background:#0f172a; color:#e2e8f0; padding:24px 16px; display:flex; flex-direction:column; }
   .logo { font-size:22px; font-weight:800; margin-bottom:4px; letter-spacing:-0.5px; }
-  .logo-cash { color:#10b981; }   /* green */
-  .logo-balik { color:#eab308; }  /* yellow */
+  .logo-cash { color:#10b981; }
+  .logo-balik { color:#eab308; }
   .logo-tag { font-size:11px; color:#64748b; margin-bottom:24px; }
   .role-toggle { background:#1e293b; border-radius:10px; padding:4px; display:flex; margin-bottom:20px; }
   .role-btn { flex:1; padding:8px; font-size:12px; border:none; background:transparent; color:#94a3b8; border-radius:7px; cursor:pointer; font-weight:600; }
@@ -88,7 +88,6 @@
   .status-ended { background:#f1f5f9; color:#64748b; }
   .status-review { background:#fee2e2; color:#991b1b; }
 
-  /* Clickable campaign rows */
   .campaign-row { cursor:pointer; transition:background 0.15s; }
   .campaign-row:hover { background:#f8fafc; }
 
@@ -188,7 +187,6 @@
   .alert-title { font-weight: 600; margin-bottom: 2px; }
   .alert-meta { font-size: 11px; opacity: 0.75; }
 
-  /* ROI score badge */
   .roi-badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; }
   .roi-excellent { background: #dcfce7; color: #065f46; }
   .roi-good { background: #dbeafe; color: #1e40af; }
@@ -206,12 +204,15 @@
   /* Billing */
   .billing-callout { background:linear-gradient(135deg,#fef3c7,#fde68a); border-radius:12px; padding:16px 20px; margin-bottom:20px; display:flex; align-items:center; gap:12px; font-size:13px; color:#78350f; }
 
-  /* Code style */
   code { background:#f1f5f9; padding:2px 8px; border-radius:4px; font-size:12px; font-family:'SF Mono',Consolas,monospace; color:#0f172a; }
 
   /* Brand col toggle */
   .brand-col { display:none; }
   .show-brand-col .brand-col { display:table-cell; }
+
+  /* Locked-brand mode (hides brand switcher when ?brand=X is used) */
+  body.locked-brand .brand-switcher { display:none; }
+  body.locked-brand .role-toggle { display:none; }
 </style>
 </head>
 <body>
@@ -564,60 +565,21 @@
           </div>
           <button class="modal-close" onclick="closeCampaignModal()">×</button>
         </div>
-
         <div class="modal-body">
+          <div class="form-row"><div class="form-field"><label class="form-label">Campaign Name *</label><input class="form-input" id="cName" placeholder="e.g., Kopiko Ramadan Boost"/></div></div>
           <div class="form-row">
-            <div class="form-field">
-              <label class="form-label">Campaign Name *</label>
-              <input class="form-input" id="cName" placeholder="e.g., Kopiko Ramadan Boost"/>
-            </div>
+            <div class="form-field"><label class="form-label">Cashback per Redemption (Rp) *</label><input class="form-input" id="cCashback" type="number" placeholder="5000"/></div>
+            <div class="form-field"><label class="form-label">Total Float / Budget (Rp) *</label><input class="form-input" id="cFloat" type="number" placeholder="10000000"/></div>
           </div>
-
+          <div class="form-row"><div class="form-field"><label class="form-label">Eligible SKUs *</label><input class="form-input" id="cSkus" placeholder="Kopiko 78°C 200ml, Kopiko Coffee Candy"/></div></div>
           <div class="form-row">
-            <div class="form-field">
-              <label class="form-label">Cashback per Redemption (Rp) *</label>
-              <input class="form-input" id="cCashback" type="number" placeholder="5000"/>
-            </div>
-            <div class="form-field">
-              <label class="form-label">Total Float / Budget (Rp) *</label>
-              <input class="form-input" id="cFloat" type="number" placeholder="10000000"/>
-            </div>
+            <div class="form-field"><label class="form-label">Per-User Cap</label><input class="form-input" id="cCap" type="number" placeholder="3" value="3"/></div>
+            <div class="form-field"><label class="form-label">Start Date *</label><input class="form-input" id="cStart" type="date"/></div>
+            <div class="form-field"><label class="form-label">End Date *</label><input class="form-input" id="cEnd" type="date"/></div>
           </div>
-
-          <div class="form-row">
-            <div class="form-field">
-              <label class="form-label">Eligible SKUs *</label>
-              <input class="form-input" id="cSkus" placeholder="Kopiko 78°C 200ml, Kopiko Coffee Candy"/>
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-field">
-              <label class="form-label">Per-User Cap</label>
-              <input class="form-input" id="cCap" type="number" placeholder="3" value="3"/>
-            </div>
-            <div class="form-field">
-              <label class="form-label">Start Date *</label>
-              <input class="form-input" id="cStart" type="date"/>
-            </div>
-            <div class="form-field">
-              <label class="form-label">End Date *</label>
-              <input class="form-input" id="cEnd" type="date"/>
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-field">
-              <label class="form-label">Campaign Code (auto-generated)</label>
-              <input class="form-input" id="cCode" placeholder="Will be generated on launch" disabled style="background:#f8fafc;"/>
-            </div>
-          </div>
-
-          <div class="modal-helper">
-            💡 <b>Heads up:</b> Once launched, share the campaign code with customers via packaging, social media, or in-store promos. They'll WhatsApp it with their receipt photo to get cashback.
-          </div>
+          <div class="form-row"><div class="form-field"><label class="form-label">Campaign Code (auto-generated)</label><input class="form-input" id="cCode" placeholder="Will be generated on launch" disabled style="background:#f8fafc;"/></div></div>
+          <div class="modal-helper">💡 <b>Heads up:</b> Once launched, share the campaign code with customers via packaging, social media, or in-store promos. They'll WhatsApp it with their receipt photo to get cashback.</div>
         </div>
-
         <div class="modal-footer">
           <button class="btn btn-secondary" onclick="closeCampaignModal()">Cancel</button>
           <button class="btn" onclick="submitCampaign()">Generate Code & Launch</button>
@@ -635,60 +597,24 @@
           </div>
           <button class="modal-close" onclick="closeEditCampaignModal()">×</button>
         </div>
-
         <div class="modal-body">
           <input type="hidden" id="editIdx" />
           <input type="hidden" id="editBrandKey" />
-
+          <div class="form-row"><div class="form-field"><label class="form-label">Campaign Name *</label><input class="form-input" id="editName" /></div></div>
           <div class="form-row">
-            <div class="form-field">
-              <label class="form-label">Campaign Name *</label>
-              <input class="form-input" id="editName" />
-            </div>
+            <div class="form-field"><label class="form-label">Cashback per Redemption (Rp) *</label><input class="form-input" id="editCashback" type="number" /></div>
+            <div class="form-field"><label class="form-label">Campaign Code *</label><input class="form-input" id="editCode" /></div>
           </div>
-
           <div class="form-row">
-            <div class="form-field">
-              <label class="form-label">Cashback per Redemption (Rp) *</label>
-              <input class="form-input" id="editCashback" type="number" />
-            </div>
-            <div class="form-field">
-              <label class="form-label">Campaign Code *</label>
-              <input class="form-input" id="editCode" />
-            </div>
+            <div class="form-field"><label class="form-label">Float Remaining (Rp, in millions)</label><input class="form-input" id="editFloatRemaining" type="number" step="0.1" placeholder="8.2"/></div>
+            <div class="form-field"><label class="form-label">Total Float / Budget (Rp, in millions)</label><input class="form-input" id="editFloatTotal" type="number" step="0.1" placeholder="15"/></div>
           </div>
-
           <div class="form-row">
-            <div class="form-field">
-              <label class="form-label">Float Remaining (Rp, in millions)</label>
-              <input class="form-input" id="editFloatRemaining" type="number" step="0.1" placeholder="8.2"/>
-            </div>
-            <div class="form-field">
-              <label class="form-label">Total Float / Budget (Rp, in millions)</label>
-              <input class="form-input" id="editFloatTotal" type="number" step="0.1" placeholder="15"/>
-            </div>
+            <div class="form-field"><label class="form-label">Status</label><select class="form-input" id="editStatus"><option value="active">Active</option><option value="paused">Paused</option><option value="ended">Ended</option></select></div>
+            <div class="form-field"><label class="form-label">Redemptions (read-only)</label><input class="form-input" id="editRedemptions" disabled style="background:#f8fafc;"/></div>
           </div>
-
-          <div class="form-row">
-            <div class="form-field">
-              <label class="form-label">Status</label>
-              <select class="form-input" id="editStatus">
-                <option value="active">Active</option>
-                <option value="paused">Paused</option>
-                <option value="ended">Ended</option>
-              </select>
-            </div>
-            <div class="form-field">
-              <label class="form-label">Redemptions (read-only)</label>
-              <input class="form-input" id="editRedemptions" disabled style="background:#f8fafc;"/>
-            </div>
-          </div>
-
-          <div class="modal-helper">
-            💡 <b>Tip:</b> To resume a paused campaign, top up the Float Remaining and switch Status to Active. Redemption count updates automatically as customers redeem.
-          </div>
+          <div class="modal-helper">💡 <b>Tip:</b> To resume a paused campaign, top up the Float Remaining and switch Status to Active. Redemption count updates automatically as customers redeem.</div>
         </div>
-
         <div class="modal-footer">
           <button class="btn btn-danger" onclick="deleteCampaign()">Delete Campaign</button>
           <div style="flex:1;"></div>
@@ -782,15 +708,63 @@ const brandData = {
       {i:'NS', n:'Nadya S.', store:'Kopi Kenangan Grand Indo', sku:'Kopi Kenangan Hits', conf:95, code:'HITS3K', tag:'New buyer ✨', amt:'+Rp 3,000', t:'1 min ago'},
     ]
   },
+  // 'all' is now COMPUTED automatically — see recomputeAll() below.
+  // The placeholder values here only exist so dashboard doesn't break before first updateAll() runs.
   all: {
-    name:'All Brands (Aggregate)', red:'11,543', cash:'Rp 56.7M', cac:'Rp 4,912', nb:'61.2%',
-    switchers:'5,239', topCoP:'(varies by brand)',
+    name:'All Brands (Aggregate)', red:'0', cash:'Rp 0', cac:'Rp 0', nb:'0%',
+    switchers:'0', topCoP:'(varies by brand)',
     campaigns:[],
-    switched:[{from:'Various FMCG', n:1709, pct:32.6}, {from:'Various Beverage', n:1187, pct:22.7}, {from:'Various Skincare', n:980, pct:18.7}, {from:'Various Snack', n:1363, pct:26.0}],
-    cop:[{p:'Indomilk UHT', r:'24%'}, {p:'Aqua 600ml', r:'21%'}, {p:'Indomie Goreng', r:'18%'}, {p:'Sociolla products', r:'12%'}],
-    feed:[]
+    switched:[], cop:[], feed:[]
   }
 };
+
+// ============ COMPUTED AGGREGATE: brandData.all ============
+// Recomputes the "All Brands (Aggregate)" entry by summing every other brand.
+// This way you NEVER have to update brandData.all manually when brands change.
+function recomputeAll(){
+  const keys = Object.keys(brandData).filter(k => k !== 'all');
+  let totalRed = 0, totalCash = 0, totalSwitchers = 0;
+  let weightedNbSum = 0, weightedCacSum = 0;
+
+  keys.forEach(k => {
+    const b = brandData[k];
+    const r = parseInt((b.red || '0').replace(/,/g,'')) || 0;
+    // cash like "Rp 12.4M" → 12400000
+    const cashNum = parseFloat((b.cash || '0').replace(/[^\d.]/g,'')) || 0;
+    const cashRp = (b.cash || '').includes('M') ? cashNum * 1_000_000 : cashNum;
+    const sw = parseInt((b.switchers || '0').replace(/,/g,'')) || 0;
+    const nb = parseFloat((b.nb || '0').replace(/[^\d.]/g,'')) || 0;
+    const cac = parseInt((b.cac || '0').replace(/[^\d]/g,'')) || 0;
+
+    totalRed += r;
+    totalCash += cashRp;
+    totalSwitchers += sw;
+    weightedNbSum += nb * r;       // weight new-buyer rate by redemptions
+    weightedCacSum += cac * r;     // weight CAC by redemptions
+  });
+
+  const avgNb = totalRed ? (weightedNbSum / totalRed) : 0;
+  const avgCac = totalRed ? Math.round(weightedCacSum / totalRed) : 0;
+
+  brandData.all.red = totalRed.toLocaleString();
+  brandData.all.cash = 'Rp ' + (totalCash / 1_000_000).toFixed(1) + 'M';
+  brandData.all.cac = 'Rp ' + avgCac.toLocaleString();
+  brandData.all.nb = avgNb.toFixed(1) + '%';
+  brandData.all.switchers = totalSwitchers.toLocaleString();
+
+  // Aggregate switched/cop/feed by concatenation (top-level sample)
+  let allSwitched = [], allCop = [], allFeed = [];
+  keys.forEach(k => {
+    const b = brandData[k];
+    if(b.switched) allSwitched = allSwitched.concat(b.switched);
+    if(b.cop) allCop = allCop.concat(b.cop);
+    if(b.feed) allFeed = allFeed.concat(b.feed.map(f=>({...f, brand:b.name})));
+  });
+  // Keep top 4 of each (sorted by count where applicable)
+  brandData.all.switched = allSwitched.sort((a,b)=>b.n-a.n).slice(0,4);
+  brandData.all.cop = allCop.slice(0,4);
+  brandData.all.feed = allFeed.slice(0,8);
+}
 
 // ============ NEW CAMPAIGN MODAL ============
 function openCampaignModal(){
@@ -798,7 +772,6 @@ function openCampaignModal(){
   const today = new Date().toISOString().split('T')[0];
   document.getElementById('cStart').value = today;
 }
-
 function closeCampaignModal(){
   document.getElementById('campaignModal').classList.add('hidden');
   ['cName','cCashback','cFloat','cSkus','cCap','cStart','cEnd','cCode'].forEach(id => {
@@ -806,7 +779,6 @@ function closeCampaignModal(){
     if(el) el.value = id === 'cCap' ? '3' : '';
   });
 }
-
 function submitCampaign(){
   const name = document.getElementById('cName').value.trim();
   const cashback = document.getElementById('cCashback').value;
@@ -814,55 +786,34 @@ function submitCampaign(){
   const skus = document.getElementById('cSkus').value.trim();
   const start = document.getElementById('cStart').value;
   const end = document.getElementById('cEnd').value;
-
-  if(!name || !cashback || !floatVal || !skus || !start || !end){
-    alert('Please fill in all required fields (*)');
-    return;
-  }
-  if(new Date(start) > new Date(end)){
-    alert('End date must be after start date.');
-    return;
-  }
-
+  if(!name || !cashback || !floatVal || !skus || !start || !end){ alert('Please fill in all required fields (*)'); return; }
+  if(new Date(start) > new Date(end)){ alert('End date must be after start date.'); return; }
   const code = name.split(' ')[0].toUpperCase().slice(0,8) + Math.round(cashback/1000) + 'K';
-
   const newCampaign = {
-    n: name,
-    code: code,
+    n: name, code: code,
     cb: 'Rp ' + Number(cashback).toLocaleString(),
     float: 'Rp ' + (floatVal/1_000_000).toFixed(1) + 'M / ' + (floatVal/1_000_000).toFixed(1) + 'M',
-    red: '0',
-    s: 'active'
+    red: '0', s: 'active'
   };
-  brandData[currentBrand].campaigns.unshift(newCampaign);
-
+  const targetBrand = (currentBrand === 'all') ? 'CashBalik' : currentBrand;
+  brandData[targetBrand].campaigns.unshift(newCampaign);
   closeCampaignModal();
   updateAll();
-
   alert(`✅ Campaign "${name}" launched!\n\nCode: ${code}\n\nShare this code with customers via packaging, social media, or in-store promos.`);
 }
 
 // ============ EDIT CAMPAIGN MODAL ============
 let editingIdx = null;
 let editingBrandKey = null;
-
 function openEditCampaignModal(brandKey, idx){
   const c = brandData[brandKey].campaigns[idx];
   if(!c) return;
   editingIdx = idx;
   editingBrandKey = brandKey;
-
-  // Parse float string like "Rp 8.2M / 15M" → remaining=8.2, total=15
   let remaining = 0, total = 0;
   const m = c.float.match(/Rp ([\d.]+)M?\s*\/\s*([\d.]+)M/);
-  if(m){
-    remaining = parseFloat(m[1]);
-    total = parseFloat(m[2]);
-  }
-
-  // Parse cashback "Rp 5,000" → 5000
+  if(m){ remaining = parseFloat(m[1]); total = parseFloat(m[2]); }
   const cashback = parseInt((c.cb || '').replace(/[^\d]/g,'')) || 0;
-
   document.getElementById('editIdx').value = idx;
   document.getElementById('editBrandKey').value = brandKey;
   document.getElementById('editName').value = c.n;
@@ -872,57 +823,33 @@ function openEditCampaignModal(brandKey, idx){
   document.getElementById('editFloatTotal').value = total;
   document.getElementById('editStatus').value = c.s;
   document.getElementById('editRedemptions').value = c.red;
-
   document.getElementById('editCampaignModal').classList.remove('hidden');
 }
-
 function closeEditCampaignModal(){
   document.getElementById('editCampaignModal').classList.add('hidden');
-  editingIdx = null;
-  editingBrandKey = null;
+  editingIdx = null; editingBrandKey = null;
 }
-
 function saveEditCampaign(){
   if(editingIdx === null || editingBrandKey === null) return;
   const c = brandData[editingBrandKey].campaigns[editingIdx];
-
   const name = document.getElementById('editName').value.trim();
   const cashback = Number(document.getElementById('editCashback').value);
   const code = document.getElementById('editCode').value.trim().toUpperCase();
   const floatRem = parseFloat(document.getElementById('editFloatRemaining').value) || 0;
   const floatTot = parseFloat(document.getElementById('editFloatTotal').value) || 0;
   let status = document.getElementById('editStatus').value;
-
-  if(!name || !cashback || !code){
-    alert('Name, Cashback, and Code are required.');
-    return;
-  }
-  if(floatRem > floatTot){
-    alert('Float Remaining cannot be greater than Total Float.');
-    return;
-  }
-
-  // Auto-pause if depleted
-  if(floatRem <= 0 && status === 'active'){
-    status = 'paused';
-    alert(`Note: "${name}" was auto-paused because float is depleted.`);
-  }
-
-  c.n = name;
-  c.cb = 'Rp ' + cashback.toLocaleString();
-  c.code = code;
-  c.float = `Rp ${floatRem}M / ${floatTot}M`;
-  c.s = status;
-
+  if(!name || !cashback || !code){ alert('Name, Cashback, and Code are required.'); return; }
+  if(floatRem > floatTot){ alert('Float Remaining cannot be greater than Total Float.'); return; }
+  if(floatRem <= 0 && status === 'active'){ status = 'paused'; alert(`Note: "${name}" was auto-paused because float is depleted.`); }
+  c.n = name; c.cb = 'Rp ' + cashback.toLocaleString(); c.code = code;
+  c.float = `Rp ${floatRem}M / ${floatTot}M`; c.s = status;
   closeEditCampaignModal();
   updateAll();
 }
-
 function deleteCampaign(){
   if(editingIdx === null || editingBrandKey === null) return;
   const c = brandData[editingBrandKey].campaigns[editingIdx];
   if(!confirm(`Delete campaign "${c.n}"?\n\nThis cannot be undone. Any remaining float will need to be refunded manually.`)) return;
-
   brandData[editingBrandKey].campaigns.splice(editingIdx, 1);
   closeEditCampaignModal();
   updateAll();
@@ -932,33 +859,20 @@ function deleteCampaign(){
 function renderCampaignAlerts(){
   const d = brandData[currentBrand];
   let alerts = [];
-
   d.campaigns.forEach(c => {
     const floatMatch = c.float.match(/Rp ([\d.]+)M?\s*\/\s*([\d.]+)M/);
     if(floatMatch){
       const remaining = parseFloat(floatMatch[1]);
       const total = parseFloat(floatMatch[2]);
       const pct = total ? (remaining/total)*100 : 0;
-      if(pct === 0){
-        alerts.push({type:'danger', icon:'🚨', title:`"${c.n}" — Float depleted`, meta:`Campaign paused. Top up Rp ${total}M to resume.`});
-      } else if(pct < 20){
-        alerts.push({type:'warning', icon:'⚠️', title:`"${c.n}" — Float running low`, meta:`Only ${pct.toFixed(0)}% remaining (Rp ${remaining}M of Rp ${total}M)`});
-      }
+      if(pct === 0){ alerts.push({type:'danger', icon:'🚨', title:`"${c.n}" — Float depleted`, meta:`Campaign paused. Top up Rp ${total}M to resume.`}); }
+      else if(pct < 20){ alerts.push({type:'warning', icon:'⚠️', title:`"${c.n}" — Float running low`, meta:`Only ${pct.toFixed(0)}% remaining (Rp ${remaining}M of Rp ${total}M)`}); }
     }
-    if(c.s === 'paused'){
-      alerts.push({type:'warning', icon:'⏸️', title:`"${c.n}" is paused`, meta:`Resume by topping up the float or extending the budget.`});
-    }
+    if(c.s === 'paused'){ alerts.push({type:'warning', icon:'⏸️', title:`"${c.n}" is paused`, meta:`Resume by topping up the float or extending the budget.`}); }
   });
-
-  if(alerts.filter(a => a.type === 'danger').length === 0){
-    alerts.push({type:'info', icon:'✨', title:'All systems healthy', meta:'No urgent issues across your active campaigns.'});
-  }
-
+  if(alerts.filter(a => a.type === 'danger').length === 0){ alerts.push({type:'info', icon:'✨', title:'All systems healthy', meta:'No urgent issues across your active campaigns.'}); }
   let html = '';
-  alerts.forEach(a => {
-    html += `<div class="alert-row alert-${a.type}"><div class="alert-icon">${a.icon}</div><div class="alert-content"><div class="alert-title">${a.title}</div><div class="alert-meta">${a.meta}</div></div></div>`;
-  });
-
+  alerts.forEach(a => { html += `<div class="alert-row alert-${a.type}"><div class="alert-icon">${a.icon}</div><div class="alert-content"><div class="alert-title">${a.title}</div><div class="alert-meta">${a.meta}</div></div></div>`; });
   const el = document.getElementById('campaignAlerts');
   if(el) el.innerHTML = html || '<div style="color:#94a3b8; font-size:13px;">No alerts.</div>';
 }
@@ -967,38 +881,29 @@ function renderCampaignAlerts(){
 function renderCampaignPerf(){
   const d = brandData[currentBrand];
   let html = '';
-
   d.campaigns.forEach(c => {
     const reds = parseInt(c.red.replace(/,/g,'')) || 0;
     const cashbackPer = parseInt(c.cb.replace(/[^\d]/g,'')) || 0;
     const costPer = cashbackPer + 1500;
     const newBuyers = Math.round(reds * (0.4 + Math.random()*0.4));
-
     const score = Math.min(100, Math.round((reds/15) + (reds ? newBuyers/reds*50 : 0)));
     let roiClass = 'roi-poor', roiLabel = 'Poor';
     if(score >= 80){ roiClass='roi-excellent'; roiLabel='Excellent'; }
     else if(score >= 60){ roiClass='roi-good'; roiLabel='Good'; }
     else if(score >= 40){ roiClass='roi-fair'; roiLabel='Fair'; }
-
-    html += `<tr>
-      <td><b>${c.n}</b><div style="font-size:11px;color:#94a3b8;margin-top:2px;"><code>${c.code}</code></div></td>
-      <td>${c.red}</td>
-      <td>Rp ${costPer.toLocaleString()}</td>
-      <td>${newBuyers.toLocaleString()} <span style="color:#64748b;font-size:11px;">(${reds ? Math.round(newBuyers/reds*100) : 0}%)</span></td>
-      <td><span class="roi-badge ${roiClass}">${score}/100 · ${roiLabel}</span></td>
-    </tr>`;
+    html += `<tr><td><b>${c.n}</b><div style="font-size:11px;color:#94a3b8;margin-top:2px;"><code>${c.code}</code></div></td><td>${c.red}</td><td>Rp ${costPer.toLocaleString()}</td><td>${newBuyers.toLocaleString()} <span style="color:#64748b;font-size:11px;">(${reds ? Math.round(newBuyers/reds*100) : 0}%)</span></td><td><span class="roi-badge ${roiClass}">${score}/100 · ${roiLabel}</span></td></tr>`;
   });
-
   const el = document.getElementById('campaignPerf');
   if(el) el.innerHTML = html || '<tr><td colspan="5" style="color:#94a3b8;text-align:center;padding:20px;">No campaigns yet. Click "+ New Campaign" to launch your first.</td></tr>';
 }
 
-
 let role = 'brand';
 let currentBrand = 'CashBalik';
 let currentPage = 'overview';
+let lockedBrand = null; // set if ?brand=X is in URL
 
 function setRole(r){
+  if(lockedBrand) return; // can't switch role when locked to a brand
   role = r;
   document.getElementById('brandRoleBtn').classList.toggle('active', r==='brand');
   document.getElementById('adminRoleBtn').classList.toggle('active', r==='admin');
@@ -1035,11 +940,18 @@ function setPage(p){
   }[p];
 }
 
-function setBrand(b){ currentBrand = b; updateAll(); }
+function setBrand(b){
+  if(lockedBrand) return; // ignore brand changes when locked
+  currentBrand = b;
+  updateAll();
+}
 
 function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
 function updateAll(){
+  // Always recompute the aggregate first so it stays in sync
+  recomputeAll();
+
   const d = brandData[currentBrand];
   document.getElementById('kpiRedemptions').textContent = d.red;
   document.getElementById('kpiCashback').textContent = d.cash;
@@ -1050,7 +962,6 @@ function updateAll(){
   if(role==='brand') document.getElementById('userMeta').textContent = 'Brand Manager · ' + d.name;
   document.getElementById('contextPill').textContent = (role==='admin' ? '🛡️ Admin View · ' : '📍 ') + d.name;
 
-  // Campaigns table — clickable rows
   const showBrandCol = (role==='admin' && currentBrand==='all');
   const tbl = document.getElementById('campaignsTable');
   tbl.classList.toggle('show-brand-col', showBrandCol);
@@ -1069,19 +980,16 @@ function updateAll(){
   }
   document.getElementById('campaignsBody').innerHTML = cBody;
 
-  // Switcher flow
   let flow = '';
   d.switched.forEach(s=>{
     flow += `<div class="flow-row"><div class="flow-from">${s.from}</div><div class="flow-arrow">→</div><div class="flow-bar"><div class="flow-bar-fill" style="width:${s.pct*2.5}%"></div></div><div class="flow-count">${s.n} (${s.pct}%)</div></div>`;
   });
   document.getElementById('switcherFlow').innerHTML = flow;
 
-  // Co-purchase
   let cop = '';
   d.cop.forEach(c=>{ cop += `<tr><td>${c.p}</td><td>${c.r}</td></tr>`; });
   document.getElementById('coPurchaseTable').innerHTML = cop;
 
-  // Live feed
   let feed = '';
   let feedItems = d.feed;
   if(currentBrand==='all'){
@@ -1094,7 +1002,6 @@ function updateAll(){
   });
   document.getElementById('liveFeed').innerHTML = feed;
 
-  // Overview live feed (top 4 only)
   let ovFeed = '';
   feedItems.slice(0,4).forEach(f=>{
     const brandTag = f.brand ? ` · <b>${f.brand}</b>` : '';
@@ -1103,12 +1010,11 @@ function updateAll(){
   const ovEl = document.getElementById('overviewLiveFeed');
   if(ovEl) ovEl.innerHTML = ovFeed || '<div style="color:#94a3b8; font-size:13px; padding:20px 0;">No live redemptions for this view.</div>';
 
-  // Campaign extras
   renderCampaignAlerts();
   renderCampaignPerf();
 }
 
-// ============ LIVE TICKER (Overview) ============
+// ============ LIVE TICKER ============
 const tickerPool = {
   CashBalik: [
     {n:'Sari N.', store:'Indomaret Menteng', sku:'Kopiko 78°C 200ml', code:'KOPIKO5K', tag:'New buyer ✨', amt:'+Rp 5,000'},
@@ -1182,17 +1088,13 @@ function injectNewRedemption(){
   if(!item) return;
   const container = document.getElementById('overviewLiveFeed');
   if(!container) return;
-
   ageTimes(container);
-
   const brandTag = item.brand ? ` · <b>${item.brand}</b>` : '';
   const div = document.createElement('div');
   div.className = 'feed-item';
   div.innerHTML = `<div class="feed-avatar">${item.i}</div><div class="feed-content"><div class="feed-line1">${item.n} · ${item.store} · ${item.sku}${brandTag}</div><div class="feed-line2">OCR confidence ${item.conf}% · Code: ${item.code} · ${item.tag}</div></div><div style="text-align:right;"><div class="feed-amount" style="color:#10b981;">${item.amt}</div><div class="feed-time">just now</div></div>`;
-
   container.insertBefore(div, container.firstChild);
   while(container.children.length > 5) container.removeChild(container.lastChild);
-
   const redEl = document.getElementById('kpiRedemptions');
   if(redEl){
     const cur = parseInt(redEl.textContent.replace(/,/g,'')) || 0;
@@ -1202,27 +1104,21 @@ function injectNewRedemption(){
 
 // ============ DATE PICKER ============
 let currentDateRange = { from: null, to: null, label: '' };
-
 function formatDate(dateStr){
   const d = new Date(dateStr);
   const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
 }
-
 function applyCustomRange(){
   const from = document.getElementById('dateFrom').value;
   const to = document.getElementById('dateTo').value;
   if(!from || !to) return;
-  if(new Date(from) > new Date(to)){
-    alert('"From" date must be before "To" date.');
-    return;
-  }
+  if(new Date(from) > new Date(to)){ alert('"From" date must be before "To" date.'); return; }
   currentDateRange.from = new Date(from);
   currentDateRange.to = new Date(to);
   currentDateRange.label = `${formatDate(from)} → ${formatDate(to)}`;
   updatePageSubtitle();
 }
-
 function updatePageSubtitle(){
   const sub = document.getElementById('pageSubtitle');
   if(sub){
@@ -1231,6 +1127,32 @@ function updatePageSubtitle(){
   }
 }
 
+// ============ ?brand=X URL LOCK-IN ============
+// If a brand visits with ?brand=wardah (for example), they only see Wardah's data.
+// The brand switcher and role toggle are hidden — they can't peek at other brands.
+function applyBrandLock(){
+  const params = new URLSearchParams(window.location.search);
+  const requested = params.get('brand');
+  if(!requested) return;
+
+  // Case-insensitive match against brandData keys (skip 'all' — never lock to aggregate)
+  const matchKey = Object.keys(brandData).find(
+    k => k !== 'all' && k.toLowerCase() === requested.toLowerCase()
+  );
+  if(!matchKey) return; // unknown brand → ignore param, show normal dashboard
+
+  lockedBrand = matchKey;
+  currentBrand = matchKey;
+  document.getElementById('brandSwitcher').value = matchKey;
+  document.body.classList.add('locked-brand');
+
+  // Force brand-user view (brands should never see admin)
+  role = 'brand';
+  document.getElementById('userMeta').textContent = 'Brand Manager · ' + brandData[matchKey].name;
+}
+
+// ============ INIT ============
+applyBrandLock(); // run BEFORE updateAll so currentBrand is set
 
 // Default to last 30 days on load
 const today = new Date();
@@ -1253,3 +1175,4 @@ startTicker();
 </script>
 </body>
 </html>
+
