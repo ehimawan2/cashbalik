@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CashBalik — Brand Dashboard</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+  body { background:#f5f7fa; color:#1a202c; }
+  .app { display:flex; min-height:100vh; }
+
+  /* Sidebar */
+  .sidebar { width:240px; background:#0f172a; color:#e2e8f0; padding:24px 16px; display:flex; flex-direction:column; }
+  .logo { font-size:22px; font-weight:800; margin-bottom:4px; letter-spacing:-0.5px; }
+  .logo-cash { color:#10b981; }   /* green */
+  .logo-balik { color:#eab308; }  /* yellow */
+  .logo-tag { font-size:11px; color:#64748b; margin-bottom:24px; }
+  .role-toggle { background:#1e293b; border-radius:10px; padding:4px; display:flex; margin-bottom:20px; }
+  .role-btn { flex:1; padding:8px; font-size:12px; border:none; background:transparent; color:#94a3b8; border-radius:7px; cursor:pointer; font-weight:600; }
+  .role-btn.active { background:#10b981; color:#fff; }
+  .nav-section-label { font-size:10px; color:#64748b; text-transform:uppercase; letter-spacing:0.6px; margin:14px 6px 6px; font-weight:700; }
+  .nav-item { padding:11px 14px; border-radius:8px; cursor:pointer; margin-bottom:4px; font-size:14px; display:flex; align-items:center; gap:10px; transition:0.15s; }
+  .nav-item:hover { background:#1e293b; }
+  .nav-item.active { background:#10b981; color:#fff; font-weight:600; }
+  .nav-item.admin-only::after { content:'ADMIN'; font-size:9px; background:#f59e0b; color:#000; padding:2px 6px; border-radius:4px; margin-left:auto; font-weight:700; }
+  .user-card { margin-top:auto; padding:12px; background:#1e293b; border-radius:10px; font-size:12px; }
+  .user-card .name { font-weight:600; color:#fff; margin-bottom:2px; }
+  .user-card .meta { color:#94a3b8; font-size:11px; }
+
+  /* Main */
+  .main { flex:1; padding:28px 36px; overflow-y:auto; }
+  .page-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:24px; gap:16px; flex-wrap:wrap; }
+  .page-title { font-size:26px; font-weight:700; }
+  .page-subtitle { color:#64748b; font-size:13px; margin-top:4px; }
+  .context-pill { background:#dcfce7; color:#065f46; padding:6px 14px; border-radius:20px; font-size:12px; font-weight:600; display:inline-flex; align-items:center; gap:6px; margin-top:8px; }
+  .context-pill.admin { background:#fef3c7; color:#92400e; }
+  .header-right { display:flex; gap:10px; align-items:center; }
+  .brand-switcher { background:#fff; border:1px solid #e2e8f0; padding:9px 14px; border-radius:8px; font-size:13px; cursor:pointer; font-weight:500; }
+  .btn { background:#10b981; color:#fff; border:none; padding:9px 16px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; }
+  .btn:hover { background:#059669; }
+  .btn-secondary { background:#fff; color:#0f172a; border:1px solid #e2e8f0; }
+  .btn-danger { background:#fee2e2; color:#dc2626; border:1px solid #fecaca; }
+  .btn-danger:hover { background:#fecaca; }
+
+  /* KPI cards */
+  .kpi-grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:16px; margin-bottom:24px; }
+  .kpi-card { background:#fff; padding:20px; border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,0.04); }
+  .kpi-label { font-size:11px; color:#64748b; font-weight:600; text-transform:uppercase; letter-spacing:0.4px; display:flex; align-items:center; gap:6px; margin-bottom:8px; }
+  .kpi-value { font-size:26px; font-weight:700; color:#0f172a; margin-bottom:4px; }
+  .kpi-delta { font-size:12px; color:#10b981; font-weight:600; }
+  .kpi-delta.down { color:#ef4444; }
+
+  /* Tooltip */
+  .info { display:inline-flex; align-items:center; justify-content:center; width:14px; height:14px; border-radius:50%; background:#cbd5e1; color:#fff; font-size:10px; font-weight:700; cursor:help; position:relative; font-style:normal; flex-shrink:0; }
+  .info:hover { background:#10b981; }
+  .info::after {
+    content: attr(data-tip);
+    position:absolute; bottom:130%; left:50%; transform:translateX(-50%);
+    background:#0f172a; color:#fff; padding:8px 12px; border-radius:8px;
+    font-size:12px; font-weight:500; line-height:1.4;
+    width:max-content; max-width:240px; text-align:center;
+    opacity:0; pointer-events:none; transition:0.2s;
+    z-index:100; letter-spacing:normal; text-transform:none;
+    box-shadow:0 4px 12px rgba(0,0,0,0.15);
+  }
+  .info:hover::after { opacity:1; }
+  .info::before {
+    content:''; position:absolute; bottom:120%; left:50%; transform:translateX(-50%);
+    border:5px solid transparent; border-top-color:#0f172a;
+    opacity:0; transition:0.2s;
+  }
+  .info:hover::before { opacity:1; }
+
+  /* Sections */
+  .section { background:#fff; border-radius:12px; padding:22px; margin-bottom:20px; box-shadow:0 1px 3px rgba(0,0,0,0.04); }
+  .section-title { font-size:16px; font-weight:700; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+  .section-subtitle { font-size:12px; color:#64748b; font-weight:400; margin-left:auto; }
+
+  /* Tables */
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  th { text-align:left; padding:10px 8px; color:#64748b; font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:0.4px; border-bottom:1px solid #e2e8f0; }
+  th .info { vertical-align:middle; }
+  td { padding:12px 8px; border-bottom:1px solid #f1f5f9; }
+  tr:last-child td { border-bottom:none; }
+  .status-pill { display:inline-block; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:600; }
+  .status-active { background:#dcfce7; color:#065f46; }
+  .status-paused { background:#fef3c7; color:#92400e; }
+  .status-ended { background:#f1f5f9; color:#64748b; }
+  .status-review { background:#fee2e2; color:#991b1b; }
+
+  /* Clickable campaign rows */
+  .campaign-row { cursor:pointer; transition:background 0.15s; }
+  .campaign-row:hover { background:#f8fafc; }
+
+  /* Live feed */
+  .feed-item { display:flex; padding:14px 0; border-bottom:1px solid #f1f5f9; gap:14px; align-items:center; animation:slideIn 0.3s; }
+  .feed-item:last-child { border-bottom:none; }
+  .feed-avatar { width:36px; height:36px; border-radius:50%; background:#10b981; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:600; font-size:13px; flex-shrink:0; }
+  .feed-content { flex:1; }
+  .feed-line1 { font-size:13px; font-weight:500; }
+  .feed-line2 { font-size:12px; color:#64748b; margin-top:2px; }
+  .feed-amount { font-weight:700; color:#10b981; font-size:14px; }
+  .feed-time { font-size:11px; color:#94a3b8; }
+  @keyframes slideIn { from{opacity:0; transform:translateX(-10px);} to{opacity:1; transform:translateX(0);} }
+
+  /* Charts */
+  .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+  .hidden { display:none !important; }
+  .bar-chart { display:flex; align-items:flex-end; height:200px; gap:12px; padding:30px 0 0 0; position:relative; }
+  .bar { flex:1; background:linear-gradient(to top,#10b981,#34d399); border-radius:6px 6px 0 0; position:relative; min-height:20px; transition:0.3s; }
+  .bar:hover { opacity:0.85; }
+  .bar-label { position:absolute; bottom:-22px; left:0; right:0; text-align:center; font-size:11px; color:#64748b; }
+  .bar-value { position:absolute; top:-20px; left:0; right:0; text-align:center; font-size:11px; font-weight:600; color:#0f172a; }
+
+  /* Donut */
+  .donut-wrap { display:flex; align-items:center; gap:24px; }
+  .donut { width:160px; height:160px; border-radius:50%; flex-shrink:0; }
+  .legend { flex:1; }
+  .legend-item { display:flex; align-items:center; gap:8px; font-size:13px; padding:6px 0; }
+  .legend-dot { width:10px; height:10px; border-radius:50%; }
+
+  /* Switcher flow */
+  .flow-row { display:flex; align-items:center; gap:14px; padding:10px 0; border-bottom:1px solid #f1f5f9; }
+  .flow-row:last-child { border-bottom:none; }
+  .flow-from { flex:1; font-weight:500; }
+  .flow-arrow { color:#10b981; font-weight:700; }
+  .flow-count { font-weight:700; color:#0f172a; min-width:80px; text-align:right; }
+  .flow-bar { flex:2; height:8px; background:#f1f5f9; border-radius:4px; overflow:hidden; }
+  .flow-bar-fill { height:100%; background:linear-gradient(to right,#10b981,#34d399); border-radius:4px; }
+
+  /* Forms */
+  .form-row { display:flex; gap:12px; margin-bottom:14px; }
+  .form-field { flex:1; }
+  .form-label { font-size:12px; font-weight:600; color:#475569; margin-bottom:6px; display:block; }
+  .form-input { width:100%; padding:9px 12px; border:1px solid #e2e8f0; border-radius:8px; font-size:13px; font-family:inherit; }
+
+  /* Modal */
+  .modal-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(15, 23, 42, 0.6);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 1000; padding: 20px;
+    animation: fadeIn 0.2s;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .modal {
+    background: #fff; border-radius: 14px;
+    width: 100%; max-width: 640px; max-height: 90vh;
+    overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    animation: slideUp 0.3s;
+  }
+  @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .modal-header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    padding: 24px 28px 16px; border-bottom: 1px solid #f1f5f9;
+  }
+  .modal-title { font-size: 20px; font-weight: 700; color: #0f172a; }
+  .modal-subtitle { font-size: 13px; color: #64748b; margin-top: 4px; }
+  .modal-close {
+    background: transparent; border: none; font-size: 28px; color: #94a3b8;
+    cursor: pointer; line-height: 1; padding: 0 4px;
+  }
+  .modal-close:hover { color: #0f172a; }
+  .modal-body { padding: 20px 28px; }
+  .modal-footer {
+    display: flex; justify-content: flex-end; gap: 10px; align-items:center;
+    padding: 16px 28px 24px; border-top: 1px solid #f1f5f9;
+  }
+  .modal-helper {
+    background: #f0fdf4; border-left: 3px solid #10b981;
+    padding: 12px 14px; border-radius: 8px;
+    font-size: 12px; color: #065f46; margin-top: 8px;
+  }
+
+  /* Alerts */
+  .alert-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px; border-radius: 8px; margin-bottom: 8px;
+    font-size: 13px;
+  }
+  .alert-row:last-child { margin-bottom: 0; }
+  .alert-warning { background: #fef3c7; color: #78350f; border-left: 3px solid #f59e0b; }
+  .alert-danger { background: #fee2e2; color: #991b1b; border-left: 3px solid #ef4444; }
+  .alert-info { background: #dbeafe; color: #1e3a8a; border-left: 3px solid #3b82f6; }
+  .alert-icon { font-size: 18px; }
+  .alert-content { flex: 1; }
+  .alert-title { font-weight: 600; margin-bottom: 2px; }
+  .alert-meta { font-size: 11px; opacity: 0.75; }
+
+  /* ROI score badge */
+  .roi-badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; }
+  .roi-excellent { background: #dcfce7; color: #065f46; }
+  .roi-good { background: #dbeafe; color: #1e40af; }
+  .roi-fair { background: #fef3c7; color: #92400e; }
+  .roi-poor { background: #fee2e2; color: #991b1b; }
+
+  /* Date picker */
+  .date-picker { display:flex; gap:6px; align-items:center; background:#fff; border:1px solid #e2e8f0; border-radius:8px; padding:4px; }
+  .date-input { padding:6px 10px; border:1px solid #e2e8f0; border-radius:6px; font-size:12px; font-family:inherit; }
+
+  /* Disabled button */
+  .btn-disabled { opacity: 0.5; cursor: not-allowed; background: #f1f5f9; color: #94a3b8; border-color: #e2e8f0; }
+  .btn-disabled:hover { background: #f1f5f9; color: #94a3b8; }
+
+  /* Billing */
+  .billing-callout { background:linear-gradient(135deg,#fef3c7,#fde68a); border-radius:12px; padding:16px 20px; margin-bottom:20px; display:flex; align-items:center; gap:12px; font-size:13px; color:#78350f; }
+
+  /* Code style */
+  code { background:#f1f5f9; padding:2px 8px; border-radius:4px; font-size:12px; font-family:'SF Mono',Consolas,monospace; color:#0f172a; }
+
+  /* Brand col toggle */
+  .brand-col { display:none; }
+  .show-brand-col .brand-col { display:table-cell; }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="logo"><span class="logo-cash">Cash</span><span class="logo-balik">Balik</span></div>
+    <div class="logo-tag">Beli. Foto. Cashbalik.</div>
+
+    <div class="role-toggle">
+      <button class="role-btn active" id="brandRoleBtn" onclick="setRole('brand')">Brand User</button>
+      <button class="role-btn" id="adminRoleBtn" onclick="setRole('admin')">Admin</button>
+    </div>
+
+    <div class="nav-section-label">Analytics</div>
+    <div class="nav-item active" data-page="overview" onclick="setPage('overview')">📊 Overview</div>
+    <div class="nav-item" data-page="campaigns" onclick="setPage('campaigns')">🎯 Campaigns</div>
+    <div class="nav-item" data-page="live" onclick="setPage('live')">📡 Live Redemptions</div>
+    <div class="nav-item" data-page="switcher" onclick="setPage('switcher')">🔄 Switcher Insights</div>
+    <div class="nav-item admin-only hidden" data-page="billing" id="billingNav" onclick="setPage('billing')">💰 Billing</div>
+
+    <div class="user-card">
+      <div class="name" id="userName">Edward Himawan</div>
+      <div class="meta" id="userMeta">Brand Manager · CashBalik</div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="page-header">
+      <div>
+        <div class="page-title" id="pageTitle">Overview</div>
+        <div class="page-subtitle" id="pageSubtitle">Last 30 days</div>
+        <div><span class="context-pill" id="contextPill">📍 CashBalik</span></div>
+      </div>
+      <div class="header-right">
+        <div class="date-picker">
+          <input type="date" id="dateFrom" class="date-input" onchange="applyCustomRange()" />
+          <span style="color:#94a3b8;">→</span>
+          <input type="date" id="dateTo" class="date-input" onchange="applyCustomRange()" />
+        </div>
+
+        <select class="brand-switcher" id="brandSwitcher" onchange="setBrand(this.value)">
+          <option value="CashBalik">CashBalik</option>
+          <option value="wings">Wings Group</option>
+          <option value="indofood">Indofood</option>
+          <option value="wardah">Wardah / Paragon</option>
+          <option value="kopikenangan">Kopi Kenangan</option>
+          <option value="all" class="hidden" id="allBrandsOpt">📊 All Brands (Aggregate)</option>
+        </select>
+        <button class="btn btn-secondary btn-disabled" title="Feature not available yet">Export CSV</button>
+        <button class="btn" onclick="openCampaignModal()">+ New Campaign</button>
+      </div>
+    </div>
+
+    <!-- ============ OVERVIEW ============ -->
+    <div id="page-overview">
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-label">Total Redemptions <i class="info" data-tip="Number of receipts customers sent in.">i</i></div>
+          <div class="kpi-value" id="kpiRedemptions">2,847</div>
+          <div class="kpi-delta">↑ 23% vs last month</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Total Cashback Paid <i class="info" data-tip="Total Rupiah refunded to customers.">i</i></div>
+          <div class="kpi-value" id="kpiCashback">Rp 12.4M</div>
+          <div class="kpi-delta">↑ 18% vs last month</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">CAC <i class="info" data-tip="Cost to acquire one new buyer.">i</i></div>
+          <div class="kpi-value" id="kpiCac">Rp 4,358</div>
+          <div class="kpi-delta down">↑ 4% vs last month</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">New-Buyer Rate <i class="info" data-tip="% of redeemers buying you first time.">i</i></div>
+          <div class="kpi-value" id="kpiNewBuyer">62.3%</div>
+          <div class="kpi-delta">↑ 5.2pts vs last month</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="section">
+          <div class="section-title">Daily Redemptions <i class="info" data-tip="Receipts received each day.">i</i><span class="section-subtitle">Last 7 days</span></div>
+          <div class="bar-chart">
+            <div class="bar" style="height:60%"><span class="bar-value">312</span><span class="bar-label">Mon</span></div>
+            <div class="bar" style="height:75%"><span class="bar-value">389</span><span class="bar-label">Tue</span></div>
+            <div class="bar" style="height:55%"><span class="bar-value">287</span><span class="bar-label">Wed</span></div>
+            <div class="bar" style="height:80%"><span class="bar-value">412</span><span class="bar-label">Thu</span></div>
+            <div class="bar" style="height:95%"><span class="bar-value">498</span><span class="bar-label">Fri</span></div>
+            <div class="bar" style="height:88%"><span class="bar-value">456</span><span class="bar-label">Sat</span></div>
+            <div class="bar" style="height:92%"><span class="bar-value">478</span><span class="bar-label">Sun</span></div>
+          </div>
+          <div style="margin-top:30px;"></div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Channel Mix <i class="info" data-tip="Where customers bought your product.">i</i></div>
+          <div class="donut-wrap">
+            <div class="donut" style="background:conic-gradient(#10b981 0% 39.5%, #34d399 39.5% 70.8%, #6ee7b7 70.8% 85.6%, #a7f3d0 85.6% 95.7%, #d1fae5 95.7% 100%);"></div>
+            <div class="legend">
+              <div class="legend-item"><span class="legend-dot" style="background:#10b981;"></span>Indomaret · 39.5%</div>
+              <div class="legend-item"><span class="legend-dot" style="background:#34d399;"></span>Alfamart · 31.3%</div>
+              <div class="legend-item"><span class="legend-dot" style="background:#6ee7b7;"></span>Shopee · 14.8%</div>
+              <div class="legend-item"><span class="legend-dot" style="background:#a7f3d0;"></span>Tokopedia · 10.1%</div>
+              <div class="legend-item"><span class="legend-dot" style="background:#d1fae5;"></span>Hypermart · 4.3%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="section">
+          <div class="section-title">Top Performing SKUs <i class="info" data-tip="Best-selling products in this campaign.">i</i></div>
+          <table>
+            <thead><tr><th>SKU</th><th>Redemptions</th><th>Cashback</th></tr></thead>
+            <tbody id="topSkus">
+              <tr><td>Kopiko 78°C 200ml</td><td>1,247</td><td>Rp 6.2M</td></tr>
+              <tr><td>Beng Beng Maxx</td><td>892</td><td>Rp 2.7M</td></tr>
+              <tr><td>Roma Malkist</td><td>708</td><td>Rp 3.5M</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Geographic Heatmap <i class="info" data-tip="Where redemptions happen across Jakarta.">i</i></div>
+          <table>
+            <thead><tr><th>District</th><th>Redemptions</th><th>% Share</th></tr></thead>
+            <tbody>
+              <tr><td>Jakarta Selatan</td><td>892</td><td>31.3%</td></tr>
+              <tr><td>Jakarta Pusat</td><td>671</td><td>23.6%</td></tr>
+              <tr><td>Jakarta Barat</td><td>534</td><td>18.8%</td></tr>
+              <tr><td>Jakarta Timur</td><td>421</td><td>14.8%</td></tr>
+              <tr><td>Jakarta Utara</td><td>329</td><td>11.6%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Live Redemption Feed <i class="info" data-tip="Real-time stream of incoming receipts.">i</i><span class="section-subtitle">🟢 Live · Redemptions</span></div>
+        <div id="overviewLiveFeed"></div>
+      </div>
+    </div>
+
+    <!-- ============ CAMPAIGNS ============ -->
+    <div id="page-campaigns" class="hidden">
+      <div class="section">
+        <div class="section-title">Active Campaigns <i class="info" data-tip="Each campaign = one promo offer with its own code.">i</i><span class="section-subtitle">Click row to edit</span></div>
+        <table id="campaignsTable">
+          <thead>
+            <tr>
+              <th class="brand-col">Brand</th>
+              <th>Campaign</th>
+              <th>Code <i class="info" data-tip="Unique code linking receipt to campaign.">i</i></th>
+              <th>Cashback</th>
+              <th>Float Remaining <i class="info" data-tip="Pre-funded pool for cashback payouts.">i</i></th>
+              <th>Redemptions</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="campaignsBody"></tbody>
+        </table>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Campaign Health Alerts <i class="info" data-tip="Issues that need your attention.">i</i><span class="section-subtitle">Updated live</span></div>
+        <div id="campaignAlerts"></div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Campaign Performance Comparison <i class="info" data-tip="See which campaigns drive the best results.">i</i></div>
+        <table>
+          <thead>
+            <tr>
+              <th>Campaign</th>
+              <th>Redemptions</th>
+              <th>Cost per Redemption <i class="info" data-tip="Total spend divided by redemptions.">i</i></th>
+              <th>New Buyers <i class="info" data-tip="First-time customers from this campaign.">i</i></th>
+              <th>ROI Score <i class="info" data-tip="Overall campaign effectiveness rating.">i</i></th>
+            </tr>
+          </thead>
+          <tbody id="campaignPerf"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ============ LIVE FEED ============ -->
+    <div id="page-live" class="hidden">
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-label">Today's Redemptions</div>
+          <div class="kpi-value" id="liveToday">478</div>
+          <div class="kpi-delta">↑ 12% vs yesterday</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Avg OCR Confidence <i class="info" data-tip="How sure system read receipt correctly.">i</i></div>
+          <div class="kpi-value">93.2%</div>
+          <div class="kpi-delta">Healthy</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Manual Review Queue</div>
+          <div class="kpi-value" style="color:#f59e0b;">23</div>
+          <div class="kpi-delta down">Avg wait 4 min</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Auto-Approval Rate</div>
+          <div class="kpi-value">87.4%</div>
+          <div class="kpi-delta">↑ 2.1pts</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Live Redemption Feed <i class="info" data-tip="Real-time stream of incoming receipts.">i</i><span class="section-subtitle">🟢 Live · auto-refresh</span></div>
+        <div id="liveFeed"></div>
+      </div>
+    </div>
+
+    <!-- ============ SWITCHER INSIGHTS ============ -->
+    <div id="page-switcher" class="hidden">
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-label">Total Switchers <i class="info" data-tip="Customers stolen from competitor brands.">i</i></div>
+          <div class="kpi-value" id="kpiSwitchers">1,247</div>
+          <div class="kpi-delta">↑ 31% vs last month</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Switcher Rate <i class="info" data-tip="% of redemptions from competitor switchers.">i</i></div>
+          <div class="kpi-value">43.8%</div>
+          <div class="kpi-delta">↑ 7.1pts</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Defection Alerts <i class="info" data-tip="Your customers switching to competitors.">i</i></div>
+          <div class="kpi-value" style="color:#ef4444;">87</div>
+          <div class="kpi-delta down">↑ 12 this week</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Top Co-Purchase <i class="info" data-tip="Other items bought with your product.">i</i></div>
+          <div class="kpi-value" style="font-size:18px;" id="kpiCoPurchase">Indomilk UHT</div>
+          <div class="kpi-delta">In 28% of baskets</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Switched From → To Your Brand <i class="info" data-tip="Which competitors customers left to buy you.">i</i><span class="section-subtitle">Last 90 days</span></div>
+        <div id="switcherFlow"></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="section">
+          <div class="section-title">Co-Purchase Basket <i class="info" data-tip="Other items in the same receipt.">i</i></div>
+          <table>
+            <thead><tr><th>Product</th><th>Co-Purchase Rate</th></tr></thead>
+            <tbody id="coPurchaseTable"></tbody>
+          </table>
+        </div>
+        <div class="section">
+          <div class="section-title">Defection Alert: Recent Losses <i class="info" data-tip="Your repeat buyers who switched away.">i</i></div>
+          <table>
+            <thead><tr><th>Customer</th><th>Switched To</th><th>Was Loyal For</th></tr></thead>
+            <tbody>
+              <tr><td>+62 812 ***4521</td><td>Top Coffee</td><td>8 months</td></tr>
+              <tr><td>+62 856 ***1873</td><td>Nescafé Gold</td><td>14 months</td></tr>
+              <tr><td>+62 813 ***9024</td><td>Good Day</td><td>5 months</td></tr>
+              <tr><td>+62 819 ***3367</td><td>Top Coffee</td><td>11 months</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ BILLING (admin only) ============ -->
+    <div id="page-billing" class="hidden">
+      <div class="billing-callout">
+        🛡️ <b>Internal Admin View.</b> This page shows CashBalik's revenue, costs, and brand-level economics. Not visible to brand users.
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-label">Platform MRR <i class="info" data-tip="Predictable monthly revenue from brands.">i</i></div>
+          <div class="kpi-value">Rp 12.8M</div>
+          <div class="kpi-delta">↑ Rp 2.1M this month</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Per-Receipt Cost <i class="info" data-tip="Total cost to process one receipt.">i</i></div>
+          <div class="kpi-value">Rp 1,847</div>
+          <div class="kpi-delta">↓ 8% (improved)</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Platform Fee Take <i class="info" data-tip="What CashBalik charges per redemption.">i</i></div>
+          <div class="kpi-value">22.4%</div>
+          <div class="kpi-delta">Stable</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Active Brands</div>
+          <div class="kpi-value">5</div>
+          <div class="kpi-delta">+1 this month</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Revenue by Brand <i class="info" data-tip="Per-brand contribution to MRR.">i</i></div>
+        <table>
+          <thead><tr><th>Brand</th><th>Redemptions</th><th>Cashback Paid</th><th>Platform Fee %</th><th>Net Revenue</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>Indofood</td><td>3,412</td><td>Rp 15.2M</td><td>22%</td><td>Rp 3.34M</td><td><span class="status-pill status-active">Active</span></td></tr>
+            <tr><td>CashBalik</td><td>2,847</td><td>Rp 12.4M</td><td>22%</td><td>Rp 2.73M</td><td><span class="status-pill status-active">Active</span></td></tr>
+            <tr><td>Kopi Kenangan</td><td>2,156</td><td>Rp 10.8M</td><td>25%</td><td>Rp 2.70M</td><td><span class="status-pill status-active">Active</span></td></tr>
+            <tr><td>Wings Group</td><td>1,923</td><td>Rp 8.7M</td><td>22%</td><td>Rp 1.91M</td><td><span class="status-pill status-active">Active</span></td></tr>
+            <tr><td>Wardah / Paragon</td><td>1,205</td><td>Rp 9.6M</td><td>22%</td><td>Rp 2.11M</td><td><span class="status-pill status-active">Active</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="grid-2">
+        <div class="section">
+          <div class="section-title">Infrastructure Costs <i class="info" data-tip="What we pay vendors to run the platform.">i</i><span class="section-subtitle">This month</span></div>
+          <table>
+            <thead><tr><th>Service</th><th>Purpose</th><th>Cost</th></tr></thead>
+            <tbody>
+              <tr><td>WhatsApp Business API</td><td>Customer messaging</td><td>Rp 3.2M</td></tr>
+              <tr><td>Xendit Disbursement</td><td>E-wallet payouts</td><td>Rp 4.8M</td></tr>
+              <tr><td>Google Gemini OCR</td><td>Receipt reading</td><td>Rp 180K</td></tr>
+              <tr><td>AWS Storage (S3)</td><td>Receipt photos</td><td>Rp 420K</td></tr>
+              <tr><td>Fraud Review Team</td><td>Manual checks</td><td>Rp 6.5M</td></tr>
+              <tr><td><b>Total Infra</b></td><td></td><td><b>Rp 15.1M</b></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="section">
+          <div class="section-title">P&L Snapshot</div>
+          <table>
+            <tbody>
+              <tr><td>Gross Platform Revenue</td><td style="text-align:right;">Rp 12.8M</td></tr>
+              <tr><td>– Infrastructure Costs</td><td style="text-align:right; color:#ef4444;">(Rp 15.1M)</td></tr>
+              <tr><td>– Engineering (2 FTE)</td><td style="text-align:right; color:#ef4444;">(Rp 60M)</td></tr>
+              <tr><td>– Founder Salaries</td><td style="text-align:right; color:#ef4444;">(Rp 30M)</td></tr>
+              <tr style="font-weight:700; background:#fef3c7;"><td>Net Burn</td><td style="text-align:right; color:#92400e;">(Rp 92.3M)</td></tr>
+              <tr><td>Runway @ current burn</td><td style="text-align:right;">14 months</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ NEW CAMPAIGN MODAL ============ -->
+    <div id="campaignModal" class="modal-overlay hidden" onclick="if(event.target===this) closeCampaignModal()">
+      <div class="modal">
+        <div class="modal-header">
+          <div>
+            <div class="modal-title">Launch New Campaign</div>
+            <div class="modal-subtitle">Set up a cashback offer for your customers</div>
+          </div>
+          <button class="modal-close" onclick="closeCampaignModal()">×</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-field">
+              <label class="form-label">Campaign Name *</label>
+              <input class="form-input" id="cName" placeholder="e.g., Kopiko Ramadan Boost"/>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label class="form-label">Cashback per Redemption (Rp) *</label>
+              <input class="form-input" id="cCashback" type="number" placeholder="5000"/>
+            </div>
+            <div class="form-field">
+              <label class="form-label">Total Float / Budget (Rp) *</label>
+              <input class="form-input" id="cFloat" type="number" placeholder="10000000"/>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label class="form-label">Eligible SKUs *</label>
+              <input class="form-input" id="cSkus" placeholder="Kopiko 78°C 200ml, Kopiko Coffee Candy"/>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label class="form-label">Per-User Cap</label>
+              <input class="form-input" id="cCap" type="number" placeholder="3" value="3"/>
+            </div>
+            <div class="form-field">
+              <label class="form-label">Start Date *</label>
+              <input class="form-input" id="cStart" type="date"/>
+            </div>
+            <div class="form-field">
+              <label class="form-label">End Date *</label>
+              <input class="form-input" id="cEnd" type="date"/>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label class="form-label">Campaign Code (auto-generated)</label>
+              <input class="form-input" id="cCode" placeholder="Will be generated on launch" disabled style="background:#f8fafc;"/>
+            </div>
+          </div>
+
+          <div class="modal-helper">
+            💡 <b>Heads up:</b> Once launched, share the campaign code with customers via packaging, social media, or in-store promos. They'll WhatsApp it with their receipt photo to get cashback.
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="closeCampaignModal()">Cancel</button>
+          <button class="btn" onclick="submitCampaign()">Generate Code & Launch</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ EDIT CAMPAIGN MODAL ============ -->
+    <div id="editCampaignModal" class="modal-overlay hidden" onclick="if(event.target===this) closeEditCampaignModal()">
+      <div class="modal">
+        <div class="modal-header">
+          <div>
+            <div class="modal-title">Edit Campaign</div>
+            <div class="modal-subtitle">Update settings, top up float, or pause campaign</div>
+          </div>
+          <button class="modal-close" onclick="closeEditCampaignModal()">×</button>
+        </div>
+
+        <div class="modal-body">
+          <input type="hidden" id="editIdx" />
+          <input type="hidden" id="editBrandKey" />
+
+          <div class="form-row">
+            <div class="form-field">
+              <label class="form-label">Campaign Name *</label>
+              <input class="form-input" id="editName" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label class="form-label">Cashback per Redemption (Rp) *</label>
+              <input class="form-input" id="editCashback" type="number" />
+            </div>
+            <div class="form-field">
+              <label class="form-label">Campaign Code *</label>
+              <input class="form-input" id="editCode" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label class="form-label">Float Remaining (Rp, in millions)</label>
+              <input class="form-input" id="editFloatRemaining" type="number" step="0.1" placeholder="8.2"/>
+            </div>
+            <div class="form-field">
+              <label class="form-label">Total Float / Budget (Rp, in millions)</label>
+              <input class="form-input" id="editFloatTotal" type="number" step="0.1" placeholder="15"/>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label class="form-label">Status</label>
+              <select class="form-input" id="editStatus">
+                <option value="active">Active</option>
+                <option value="paused">Paused</option>
+                <option value="ended">Ended</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label class="form-label">Redemptions (read-only)</label>
+              <input class="form-input" id="editRedemptions" disabled style="background:#f8fafc;"/>
+            </div>
+          </div>
+
+          <div class="modal-helper">
+            💡 <b>Tip:</b> To resume a paused campaign, top up the Float Remaining and switch Status to Active. Redemption count updates automatically as customers redeem.
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-danger" onclick="deleteCampaign()">Delete Campaign</button>
+          <div style="flex:1;"></div>
+          <button class="btn btn-secondary" onclick="closeEditCampaignModal()">Cancel</button>
+          <button class="btn" onclick="saveEditCampaign()">Save Changes</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+const brandData = {
+  CashBalik: {
+    name:'CashBalik', red:'2,847', cash:'Rp 12.4M', cac:'Rp 4,358', nb:'62.3%',
+    switchers:'1,247', topCoP:'Indomilk UHT',
+    campaigns:[
+      {n:'Kopiko Coffee Boost', code:'KOPIKO5K', cb:'Rp 5,000', float:'Rp 8.2M / 15M', red:'1,247', s:'active'},
+      {n:'Beng Beng Big Bite', code:'BENGBENG3', cb:'Rp 3,000', float:'Rp 4.1M / 10M', red:'892', s:'active'},
+      {n:'Roma Sandwich Combo', code:'ROMA10K', cb:'Rp 10,000', float:'Rp 0 / 8M', red:'708', s:'paused'},
+    ],
+    switched:[{from:'Top Coffee', n:412, pct:33}, {from:'Nescafé', n:287, pct:23}, {from:'Good Day', n:234, pct:18.8}, {from:'ABC Susu', n:178, pct:14.3}],
+    cop:[{p:'Indomilk UHT', r:'28%'}, {p:'Indomie Goreng', r:'22%'}, {p:'Aqua 600ml', r:'19%'}, {p:'SilverQueen', r:'14%'}],
+    feed:[
+      {i:'RA', n:'Rina A.', store:'Indomaret Sudirman', sku:'Kopiko 78°C 200ml', conf:96, code:'KOPIKO5K', tag:'New buyer ✨', amt:'+Rp 5,000', t:'12 sec ago'},
+      {i:'BS', n:'Budi S.', store:'Alfamart Kelapa Gading', sku:'Beng Beng Maxx', conf:91, code:'BENGBENG3', tag:'Switcher (was Top)', amt:'+Rp 3,000', t:'47 sec ago'},
+      {i:'DP', n:'Dewi P.', store:'Shopee', sku:'Kopiko Coffee Candy 150g', conf:88, code:'KOPIKO5K', tag:'Repeat buyer', amt:'+Rp 5,000', t:'1 min ago'},
+      {i:'AK', n:'Andi K.', store:'Indomaret Tebet', sku:'Roma Malkist', conf:73, code:'ROMA10K', tag:'Manual review queue ⚠️', amt:'Pending', t:'2 min ago'},
+    ]
+  },
+  wings: {
+    name:'Wings Group', red:'1,923', cash:'Rp 8.7M', cac:'Rp 4,524', nb:'58.1%',
+    switchers:'782', topCoP:'Mie Sedaap',
+    campaigns:[
+      {n:'Mie Sedaap Korean Spicy', code:'SEDAAP4K', cb:'Rp 4,000', float:'Rp 6.8M / 12M', red:'1,124', s:'active'},
+      {n:'Floridina Citrus Boost', code:'FLORIDINA2', cb:'Rp 2,000', float:'Rp 1.6M / 5M', red:'799', s:'active'},
+    ],
+    switched:[{from:'Indomie', n:287, pct:36.7}, {from:'Sarimi', n:198, pct:25.3}, {from:'Pop Mie', n:156, pct:19.9}, {from:'Le Minerale', n:141, pct:18.0}],
+    cop:[{p:'Mie Sedaap variants', r:'34%'}, {p:'Floridina', r:'21%'}, {p:'Teh Javana', r:'17%'}, {p:'Kecap ABC', r:'12%'}],
+    feed:[
+      {i:'NK', n:'Nurul K.', store:'Alfamart Cipinang', sku:'Mie Sedaap Korean Spicy', conf:94, code:'SEDAAP4K', tag:'Switcher (was Indomie)', amt:'+Rp 4,000', t:'8 sec ago'},
+      {i:'YP', n:'Yoga P.', store:'Indomaret Pondok Indah', sku:'Floridina Orange', conf:97, code:'FLORIDINA2', tag:'New buyer ✨', amt:'+Rp 2,000', t:'34 sec ago'},
+      {i:'SI', n:'Sinta I.', store:'Tokopedia', sku:'Mie Sedaap Goreng x10', conf:92, code:'SEDAAP4K', tag:'Repeat buyer', amt:'+Rp 4,000', t:'1 min ago'},
+    ]
+  },
+  indofood: {
+    name:'Indofood', red:'3,412', cash:'Rp 15.2M', cac:'Rp 4,455', nb:'54.7%',
+    switchers:'1,489', topCoP:'Indomilk Kids',
+    campaigns:[
+      {n:'Indomie Goreng Mega', code:'INDOMIE3K', cb:'Rp 3,000', float:'Rp 9.4M / 18M', red:'1,847', s:'active'},
+      {n:'Pop Mie Cup Special', code:'POPMIE2K', cb:'Rp 2,000', float:'Rp 3.1M / 8M', red:'923', s:'active'},
+      {n:'Chitato Lite Promo', code:'CHITATO5', cb:'Rp 5,000', float:'Rp 2.8M / 10M', red:'642', s:'active'},
+    ],
+    switched:[{from:'Mie Sedaap', n:512, pct:34.4}, {from:'Sarimi', n:387, pct:26.0}, {from:'Lemonilo', n:298, pct:20.0}, {from:'ABC', n:292, pct:19.6}],
+    cop:[{p:'Indomilk Kids', r:'31%'}, {p:'Bimoli Oil', r:'24%'}, {p:'Promina', r:'18%'}, {p:'Kecap Indofood', r:'15%'}],
+    feed:[
+      {i:'WP', n:'Wati P.', store:'Indomaret Cilandak', sku:'Indomie Goreng x5', conf:98, code:'INDOMIE3K', tag:'Repeat buyer', amt:'+Rp 3,000', t:'5 sec ago'},
+      {i:'HG', n:'Hadi G.', store:'Alfamart Kemang', sku:'Pop Mie Ayam Bawang', conf:95, code:'POPMIE2K', tag:'Switcher (was Mie Sedaap)', amt:'+Rp 2,000', t:'22 sec ago'},
+      {i:'LM', n:'Lia M.', store:'Hypermart', sku:'Chitato Lite Salt', conf:89, code:'CHITATO5', tag:'New buyer ✨', amt:'+Rp 5,000', t:'1 min ago'},
+    ]
+  },
+  wardah: {
+    name:'Wardah / Paragon', red:'1,205', cash:'Rp 9.6M', cac:'Rp 7,968', nb:'71.2%',
+    switchers:'687', topCoP:'Sociolla Toner',
+    campaigns:[
+      {n:'Wardah Lightening Series', code:'WARDAH8K', cb:'Rp 8,000', float:'Rp 5.2M / 12M', red:'524', s:'active'},
+      {n:'Make Over Liquid Lip', code:'MAKEOVER10', cb:'Rp 10,000', float:'Rp 3.8M / 8M', red:'381', s:'active'},
+      {n:'Emina Skincare Pilot', code:'EMINA5K', cb:'Rp 5,000', float:'Rp 1.5M / 5M', red:'300', s:'active'},
+    ],
+    switched:[{from:'Skintific', n:198, pct:28.8}, {from:'Somethinc', n:167, pct:24.3}, {from:'Avoskin', n:142, pct:20.7}, {from:'Pixy', n:180, pct:26.2}],
+    cop:[{p:'Sociolla Toner', r:'33%'}, {p:'Sheet Mask brands', r:'27%'}, {p:'Sunscreen SPF50', r:'22%'}, {p:'Cotton Pads', r:'14%'}],
+    feed:[
+      {i:'RD', n:'Rara D.', store:'Sociolla', sku:'Wardah Lightening Serum', conf:96, code:'WARDAH8K', tag:'Switcher (was Skintific)', amt:'+Rp 8,000', t:'18 sec ago'},
+      {i:'AP', n:'Anisa P.', store:'Watsons Plaza Indonesia', sku:'Make Over Lip Cream', conf:93, code:'MAKEOVER10', tag:'New buyer ✨', amt:'+Rp 10,000', t:'52 sec ago'},
+      {i:'TR', n:'Tania R.', store:'Shopee', sku:'Emina Bright Stuff', conf:90, code:'EMINA5K', tag:'New buyer ✨', amt:'+Rp 5,000', t:'2 min ago'},
+    ]
+  },
+  kopikenangan: {
+    name:'Kopi Kenangan', red:'2,156', cash:'Rp 10.8M', cac:'Rp 5,009', nb:'68.4%',
+    switchers:'1,034', topCoP:'Kenangan Pastry',
+    campaigns:[
+      {n:'Kopi Mantan Loyalty', code:'MANTAN5K', cb:'Rp 5,000', float:'Rp 6.8M / 14M', red:'1,247', s:'active'},
+      {n:'Kenangan Hits Combo', code:'HITS3K', cb:'Rp 3,000', float:'Rp 2.1M / 6M', red:'909', s:'active'},
+    ],
+    switched:[{from:'Janji Jiwa', n:312, pct:30.2}, {from:'Tomoro', n:287, pct:27.8}, {from:'Fore Coffee', n:234, pct:22.6}, {from:'Flash Coffee', n:201, pct:19.4}],
+    cop:[{p:'Kenangan Pastry', r:'42%'}, {p:'Roti O', r:'19%'}, {p:'Aqua', r:'15%'}, {p:'Kopiko Candy', r:'11%'}],
+    feed:[
+      {i:'FA', n:'Farah A.', store:'Kopi Kenangan Senayan', sku:'Kopi Mantan Tetap', conf:97, code:'MANTAN5K', tag:'Repeat buyer', amt:'+Rp 5,000', t:'9 sec ago'},
+      {i:'RV', n:'Rio V.', store:'GrabFood', sku:'Kenangan Latte + Pastry', conf:92, code:'HITS3K', tag:'Switcher (was Janji Jiwa)', amt:'+Rp 3,000', t:'41 sec ago'},
+      {i:'NS', n:'Nadya S.', store:'Kopi Kenangan Grand Indo', sku:'Kopi Kenangan Hits', conf:95, code:'HITS3K', tag:'New buyer ✨', amt:'+Rp 3,000', t:'1 min ago'},
+    ]
+  },
+  all: {
+    name:'All Brands (Aggregate)', red:'11,543', cash:'Rp 56.7M', cac:'Rp 4,912', nb:'61.2%',
+    switchers:'5,239', topCoP:'(varies by brand)',
+    campaigns:[],
+    switched:[{from:'Various FMCG', n:1709, pct:32.6}, {from:'Various Beverage', n:1187, pct:22.7}, {from:'Various Skincare', n:980, pct:18.7}, {from:'Various Snack', n:1363, pct:26.0}],
+    cop:[{p:'Indomilk UHT', r:'24%'}, {p:'Aqua 600ml', r:'21%'}, {p:'Indomie Goreng', r:'18%'}, {p:'Sociolla products', r:'12%'}],
+    feed:[]
+  }
+};
+
+// ============ NEW CAMPAIGN MODAL ============
+function openCampaignModal(){
+  document.getElementById('campaignModal').classList.remove('hidden');
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('cStart').value = today;
+}
+
+function closeCampaignModal(){
+  document.getElementById('campaignModal').classList.add('hidden');
+  ['cName','cCashback','cFloat','cSkus','cCap','cStart','cEnd','cCode'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.value = id === 'cCap' ? '3' : '';
+  });
+}
+
+function submitCampaign(){
+  const name = document.getElementById('cName').value.trim();
+  const cashback = document.getElementById('cCashback').value;
+  const floatVal = document.getElementById('cFloat').value;
+  const skus = document.getElementById('cSkus').value.trim();
+  const start = document.getElementById('cStart').value;
+  const end = document.getElementById('cEnd').value;
+
+  if(!name || !cashback || !floatVal || !skus || !start || !end){
+    alert('Please fill in all required fields (*)');
+    return;
+  }
+  if(new Date(start) > new Date(end)){
+    alert('End date must be after start date.');
+    return;
+  }
+
+  const code = name.split(' ')[0].toUpperCase().slice(0,8) + Math.round(cashback/1000) + 'K';
+
+  const newCampaign = {
+    n: name,
+    code: code,
+    cb: 'Rp ' + Number(cashback).toLocaleString(),
+    float: 'Rp ' + (floatVal/1_000_000).toFixed(1) + 'M / ' + (floatVal/1_000_000).toFixed(1) + 'M',
+    red: '0',
+    s: 'active'
+  };
+  brandData[currentBrand].campaigns.unshift(newCampaign);
+
+  closeCampaignModal();
+  updateAll();
+
+  alert(`✅ Campaign "${name}" launched!\n\nCode: ${code}\n\nShare this code with customers via packaging, social media, or in-store promos.`);
+}
+
+// ============ EDIT CAMPAIGN MODAL ============
+let editingIdx = null;
+let editingBrandKey = null;
+
+function openEditCampaignModal(brandKey, idx){
+  const c = brandData[brandKey].campaigns[idx];
+  if(!c) return;
+  editingIdx = idx;
+  editingBrandKey = brandKey;
+
+  // Parse float string like "Rp 8.2M / 15M" → remaining=8.2, total=15
+  let remaining = 0, total = 0;
+  const m = c.float.match(/Rp ([\d.]+)M?\s*\/\s*([\d.]+)M/);
+  if(m){
+    remaining = parseFloat(m[1]);
+    total = parseFloat(m[2]);
+  }
+
+  // Parse cashback "Rp 5,000" → 5000
+  const cashback = parseInt((c.cb || '').replace(/[^\d]/g,'')) || 0;
+
+  document.getElementById('editIdx').value = idx;
+  document.getElementById('editBrandKey').value = brandKey;
+  document.getElementById('editName').value = c.n;
+  document.getElementById('editCashback').value = cashback;
+  document.getElementById('editCode').value = c.code;
+  document.getElementById('editFloatRemaining').value = remaining;
+  document.getElementById('editFloatTotal').value = total;
+  document.getElementById('editStatus').value = c.s;
+  document.getElementById('editRedemptions').value = c.red;
+
+  document.getElementById('editCampaignModal').classList.remove('hidden');
+}
+
+function closeEditCampaignModal(){
+  document.getElementById('editCampaignModal').classList.add('hidden');
+  editingIdx = null;
+  editingBrandKey = null;
+}
+
+function saveEditCampaign(){
+  if(editingIdx === null || editingBrandKey === null) return;
+  const c = brandData[editingBrandKey].campaigns[editingIdx];
+
+  const name = document.getElementById('editName').value.trim();
+  const cashback = Number(document.getElementById('editCashback').value);
+  const code = document.getElementById('editCode').value.trim().toUpperCase();
+  const floatRem = parseFloat(document.getElementById('editFloatRemaining').value) || 0;
+  const floatTot = parseFloat(document.getElementById('editFloatTotal').value) || 0;
+  let status = document.getElementById('editStatus').value;
+
+  if(!name || !cashback || !code){
+    alert('Name, Cashback, and Code are required.');
+    return;
+  }
+  if(floatRem > floatTot){
+    alert('Float Remaining cannot be greater than Total Float.');
+    return;
+  }
+
+  // Auto-pause if depleted
+  if(floatRem <= 0 && status === 'active'){
+    status = 'paused';
+    alert(`Note: "${name}" was auto-paused because float is depleted.`);
+  }
+
+  c.n = name;
+  c.cb = 'Rp ' + cashback.toLocaleString();
+  c.code = code;
+  c.float = `Rp ${floatRem}M / ${floatTot}M`;
+  c.s = status;
+
+  closeEditCampaignModal();
+  updateAll();
+}
+
+function deleteCampaign(){
+  if(editingIdx === null || editingBrandKey === null) return;
+  const c = brandData[editingBrandKey].campaigns[editingIdx];
+  if(!confirm(`Delete campaign "${c.n}"?\n\nThis cannot be undone. Any remaining float will need to be refunded manually.`)) return;
+
+  brandData[editingBrandKey].campaigns.splice(editingIdx, 1);
+  closeEditCampaignModal();
+  updateAll();
+}
+
+// ============ CAMPAIGN ALERTS ============
+function renderCampaignAlerts(){
+  const d = brandData[currentBrand];
+  let alerts = [];
+
+  d.campaigns.forEach(c => {
+    const floatMatch = c.float.match(/Rp ([\d.]+)M?\s*\/\s*([\d.]+)M/);
+    if(floatMatch){
+      const remaining = parseFloat(floatMatch[1]);
+      const total = parseFloat(floatMatch[2]);
+      const pct = total ? (remaining/total)*100 : 0;
+      if(pct === 0){
+        alerts.push({type:'danger', icon:'🚨', title:`"${c.n}" — Float depleted`, meta:`Campaign paused. Top up Rp ${total}M to resume.`});
+      } else if(pct < 20){
+        alerts.push({type:'warning', icon:'⚠️', title:`"${c.n}" — Float running low`, meta:`Only ${pct.toFixed(0)}% remaining (Rp ${remaining}M of Rp ${total}M)`});
+      }
+    }
+    if(c.s === 'paused'){
+      alerts.push({type:'warning', icon:'⏸️', title:`"${c.n}" is paused`, meta:`Resume by topping up the float or extending the budget.`});
+    }
+  });
+
+  if(alerts.filter(a => a.type === 'danger').length === 0){
+    alerts.push({type:'info', icon:'✨', title:'All systems healthy', meta:'No urgent issues across your active campaigns.'});
+  }
+
+  let html = '';
+  alerts.forEach(a => {
+    html += `<div class="alert-row alert-${a.type}"><div class="alert-icon">${a.icon}</div><div class="alert-content"><div class="alert-title">${a.title}</div><div class="alert-meta">${a.meta}</div></div></div>`;
+  });
+
+  const el = document.getElementById('campaignAlerts');
+  if(el) el.innerHTML = html || '<div style="color:#94a3b8; font-size:13px;">No alerts.</div>';
+}
+
+// ============ CAMPAIGN PERFORMANCE ============
+function renderCampaignPerf(){
+  const d = brandData[currentBrand];
+  let html = '';
+
+  d.campaigns.forEach(c => {
+    const reds = parseInt(c.red.replace(/,/g,'')) || 0;
+    const cashbackPer = parseInt(c.cb.replace(/[^\d]/g,'')) || 0;
+    const costPer = cashbackPer + 1500;
+    const newBuyers = Math.round(reds * (0.4 + Math.random()*0.4));
+
+    const score = Math.min(100, Math.round((reds/15) + (reds ? newBuyers/reds*50 : 0)));
+    let roiClass = 'roi-poor', roiLabel = 'Poor';
+    if(score >= 80){ roiClass='roi-excellent'; roiLabel='Excellent'; }
+    else if(score >= 60){ roiClass='roi-good'; roiLabel='Good'; }
+    else if(score >= 40){ roiClass='roi-fair'; roiLabel='Fair'; }
+
+    html += `<tr>
+      <td><b>${c.n}</b><div style="font-size:11px;color:#94a3b8;margin-top:2px;"><code>${c.code}</code></div></td>
+      <td>${c.red}</td>
+      <td>Rp ${costPer.toLocaleString()}</td>
+      <td>${newBuyers.toLocaleString()} <span style="color:#64748b;font-size:11px;">(${reds ? Math.round(newBuyers/reds*100) : 0}%)</span></td>
+      <td><span class="roi-badge ${roiClass}">${score}/100 · ${roiLabel}</span></td>
+    </tr>`;
+  });
+
+  const el = document.getElementById('campaignPerf');
+  if(el) el.innerHTML = html || '<tr><td colspan="5" style="color:#94a3b8;text-align:center;padding:20px;">No campaigns yet. Click "+ New Campaign" to launch your first.</td></tr>';
+}
+
+
+let role = 'brand';
+let currentBrand = 'CashBalik';
+let currentPage = 'overview';
+
+function setRole(r){
+  role = r;
+  document.getElementById('brandRoleBtn').classList.toggle('active', r==='brand');
+  document.getElementById('adminRoleBtn').classList.toggle('active', r==='admin');
+  const billingNav = document.getElementById('billingNav');
+  const allOpt = document.getElementById('allBrandsOpt');
+  if(r==='admin'){
+    billingNav.classList.remove('hidden');
+    allOpt.classList.remove('hidden');
+    document.getElementById('userName').textContent = 'You';
+    document.getElementById('userMeta').textContent = 'Platform Admin · CashBalik Internal';
+    document.getElementById('contextPill').classList.add('admin');
+  } else {
+    billingNav.classList.add('hidden');
+    allOpt.classList.add('hidden');
+    if(currentBrand==='all'){ currentBrand='CashBalik'; document.getElementById('brandSwitcher').value='CashBalik'; }
+    if(currentPage==='billing') setPage('overview');
+    document.getElementById('userName').textContent = 'Andre Wijaya';
+    document.getElementById('userMeta').textContent = 'Brand Manager · ' + brandData[currentBrand].name;
+    document.getElementById('contextPill').classList.remove('admin');
+  }
+  updateAll();
+}
+
+function setPage(p){
+  currentPage = p;
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active', n.dataset.page===p));
+  ['overview','campaigns','live','switcher','billing'].forEach(pg=>{
+    const el = document.getElementById('page-'+pg);
+    if(el) el.classList.toggle('hidden', pg!==p);
+  });
+  document.getElementById('pageTitle').textContent = {
+    overview:'Overview', campaigns:'Campaigns', live:'Live Redemptions',
+    switcher:'Switcher Insights', billing:'Billing & Revenue'
+  }[p];
+}
+
+function setBrand(b){ currentBrand = b; updateAll(); }
+
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function updateAll(){
+  const d = brandData[currentBrand];
+  document.getElementById('kpiRedemptions').textContent = d.red;
+  document.getElementById('kpiCashback').textContent = d.cash;
+  document.getElementById('kpiCac').textContent = d.cac;
+  document.getElementById('kpiNewBuyer').textContent = d.nb;
+  document.getElementById('kpiSwitchers').textContent = d.switchers;
+  document.getElementById('kpiCoPurchase').textContent = d.topCoP;
+  if(role==='brand') document.getElementById('userMeta').textContent = 'Brand Manager · ' + d.name;
+  document.getElementById('contextPill').textContent = (role==='admin' ? '🛡️ Admin View · ' : '📍 ') + d.name;
+
+  // Campaigns table — clickable rows
+  const showBrandCol = (role==='admin' && currentBrand==='all');
+  const tbl = document.getElementById('campaignsTable');
+  tbl.classList.toggle('show-brand-col', showBrandCol);
+  let cBody = '';
+  if(currentBrand==='all'){
+    Object.keys(brandData).forEach(k=>{
+      if(k==='all') return;
+      brandData[k].campaigns.forEach((c, idx)=>{
+        cBody += `<tr class="campaign-row" onclick="openEditCampaignModal('${k}', ${idx})"><td class="brand-col">${brandData[k].name}</td><td>${c.n}</td><td><code>${c.code}</code></td><td>${c.cb}</td><td>${c.float}</td><td>${c.red}</td><td><span class="status-pill status-${c.s}">${c.s}</span></td></tr>`;
+      });
+    });
+  } else {
+    d.campaigns.forEach((c, idx)=>{
+      cBody += `<tr class="campaign-row" onclick="openEditCampaignModal('${currentBrand}', ${idx})"><td class="brand-col">${d.name}</td><td>${c.n}</td><td><code>${c.code}</code></td><td>${c.cb}</td><td>${c.float}</td><td>${c.red}</td><td><span class="status-pill status-${c.s}">${c.s}</span></td></tr>`;
+    });
+  }
+  document.getElementById('campaignsBody').innerHTML = cBody;
+
+  // Switcher flow
+  let flow = '';
+  d.switched.forEach(s=>{
+    flow += `<div class="flow-row"><div class="flow-from">${s.from}</div><div class="flow-arrow">→</div><div class="flow-bar"><div class="flow-bar-fill" style="width:${s.pct*2.5}%"></div></div><div class="flow-count">${s.n} (${s.pct}%)</div></div>`;
+  });
+  document.getElementById('switcherFlow').innerHTML = flow;
+
+  // Co-purchase
+  let cop = '';
+  d.cop.forEach(c=>{ cop += `<tr><td>${c.p}</td><td>${c.r}</td></tr>`; });
+  document.getElementById('coPurchaseTable').innerHTML = cop;
+
+  // Live feed
+  let feed = '';
+  let feedItems = d.feed;
+  if(currentBrand==='all'){
+    feedItems = [];
+    Object.keys(brandData).forEach(k=>{ if(k!=='all') feedItems = feedItems.concat(brandData[k].feed.map(f=>({...f, brand:brandData[k].name}))); });
+  }
+  feedItems.forEach(f=>{
+    const brandTag = f.brand ? ` · <b>${f.brand}</b>` : '';
+    feed += `<div class="feed-item"><div class="feed-avatar">${f.i}</div><div class="feed-content"><div class="feed-line1">${f.n} · ${f.store} · ${f.sku}${brandTag}</div><div class="feed-line2">OCR confidence ${f.conf}% · Code: ${f.code} · ${f.tag}</div></div><div style="text-align:right;"><div class="feed-amount">${f.amt}</div><div class="feed-time">${f.t}</div></div></div>`;
+  });
+  document.getElementById('liveFeed').innerHTML = feed;
+
+  // Overview live feed (top 4 only)
+  let ovFeed = '';
+  feedItems.slice(0,4).forEach(f=>{
+    const brandTag = f.brand ? ` · <b>${f.brand}</b>` : '';
+    ovFeed += `<div class="feed-item"><div class="feed-avatar">${f.i}</div><div class="feed-content"><div class="feed-line1">${f.n} · ${f.store} · ${f.sku}${brandTag}</div><div class="feed-line2">OCR confidence ${f.conf}% · Code: ${f.code} · ${f.tag}</div></div><div style="text-align:right;"><div class="feed-amount">${f.amt}</div><div class="feed-time">${f.t}</div></div></div>`;
+  });
+  const ovEl = document.getElementById('overviewLiveFeed');
+  if(ovEl) ovEl.innerHTML = ovFeed || '<div style="color:#94a3b8; font-size:13px; padding:20px 0;">No live redemptions for this view.</div>';
+
+  // Campaign extras
+  renderCampaignAlerts();
+  renderCampaignPerf();
+}
+
+// ============ LIVE TICKER (Overview) ============
+const tickerPool = {
+  CashBalik: [
+    {n:'Sari N.', store:'Indomaret Menteng', sku:'Kopiko 78°C 200ml', code:'KOPIKO5K', tag:'New buyer ✨', amt:'+Rp 5,000'},
+    {n:'Galih T.', store:'Alfamart Senen', sku:'Beng Beng Maxx', code:'BENGBENG3', tag:'Switcher (was Top)', amt:'+Rp 3,000'},
+    {n:'Maya R.', store:'Shopee', sku:'Roma Malkist', code:'ROMA10K', tag:'Repeat buyer', amt:'+Rp 10,000'},
+    {n:'Rizky F.', store:'Indomaret Slipi', sku:'Kopiko Coffee Candy', code:'KOPIKO5K', tag:'New buyer ✨', amt:'+Rp 5,000'},
+    {n:'Putri W.', store:'Alfamart BSD', sku:'Beng Beng White', code:'BENGBENG3', tag:'Switcher (was SilverQueen)', amt:'+Rp 3,000'},
+    {n:'Doni K.', store:'Tokopedia', sku:'Kopiko 78°C box', code:'KOPIKO5K', tag:'Repeat buyer', amt:'+Rp 5,000'},
+  ],
+  wings: [
+    {n:'Indra B.', store:'Indomaret Cikarang', sku:'Mie Sedaap Korean Spicy', code:'SEDAAP4K', tag:'Switcher (was Indomie)', amt:'+Rp 4,000'},
+    {n:'Lestari M.', store:'Alfamart Bekasi', sku:'Floridina Orange', code:'FLORIDINA2', tag:'New buyer ✨', amt:'+Rp 2,000'},
+    {n:'Fajar A.', store:'Shopee', sku:'Mie Sedaap Goreng x10', code:'SEDAAP4K', tag:'Repeat buyer', amt:'+Rp 4,000'},
+    {n:'Citra E.', store:'Tokopedia', sku:'Floridina Lychee', code:'FLORIDINA2', tag:'New buyer ✨', amt:'+Rp 2,000'},
+  ],
+  indofood: [
+    {n:'Bagas H.', store:'Indomaret Depok', sku:'Indomie Goreng x5', code:'INDOMIE3K', tag:'Repeat buyer', amt:'+Rp 3,000'},
+    {n:'Anggi P.', store:'Hypermart', sku:'Pop Mie Ayam Bawang', code:'POPMIE2K', tag:'Switcher (was Mie Sedaap)', amt:'+Rp 2,000'},
+    {n:'Reza S.', store:'Alfamart Cibubur', sku:'Chitato Lite Salt', code:'CHITATO5', tag:'New buyer ✨', amt:'+Rp 5,000'},
+    {n:'Vina L.', store:'Shopee', sku:'Indomie Soto', code:'INDOMIE3K', tag:'Repeat buyer', amt:'+Rp 3,000'},
+  ],
+  wardah: [
+    {n:'Tasya D.', store:'Sociolla', sku:'Wardah Lightening Serum', code:'WARDAH8K', tag:'Switcher (was Skintific)', amt:'+Rp 8,000'},
+    {n:'Bella K.', store:'Watsons Kuningan', sku:'Make Over Lip Cream', code:'MAKEOVER10', tag:'New buyer ✨', amt:'+Rp 10,000'},
+    {n:'Hana Y.', store:'Shopee', sku:'Emina Bright Stuff', code:'EMINA5K', tag:'New buyer ✨', amt:'+Rp 5,000'},
+    {n:'Olivia R.', store:'Guardian PI', sku:'Wardah Sunscreen', code:'WARDAH8K', tag:'Switcher (was Somethinc)', amt:'+Rp 8,000'},
+  ],
+  kopikenangan: [
+    {n:'Daffa I.', store:'Kopi Kenangan Sudirman', sku:'Kopi Mantan Tetap', code:'MANTAN5K', tag:'Repeat buyer', amt:'+Rp 5,000'},
+    {n:'Kirana P.', store:'GrabFood', sku:'Kenangan Latte', code:'HITS3K', tag:'Switcher (was Janji Jiwa)', amt:'+Rp 3,000'},
+    {n:'Bayu S.', store:'GoFood', sku:'Kopi Kenangan Hits', code:'HITS3K', tag:'New buyer ✨', amt:'+Rp 3,000'},
+    {n:'Mira H.', store:'Kopi Kenangan PIK', sku:'Kopi Mantan Tetap', code:'MANTAN5K', tag:'Repeat buyer', amt:'+Rp 5,000'},
+  ]
+};
+
+function randomItem(){
+  let pool = [];
+  if(currentBrand === 'all'){
+    Object.keys(tickerPool).forEach(k=>{
+      tickerPool[k].forEach(item => pool.push({...item, brand: brandData[k].name}));
+    });
+  } else {
+    pool = tickerPool[currentBrand] || [];
+  }
+  if(pool.length === 0) return null;
+  const item = pool[Math.floor(Math.random()*pool.length)];
+  const initials = item.n.split(' ').map(s=>s[0]).join('').toUpperCase().slice(0,2);
+  return {...item, i:initials, conf: 85 + Math.floor(Math.random()*14), t:'just now'};
+}
+
+function ageTimes(container){
+  const items = container.querySelectorAll('.feed-item');
+  items.forEach((el)=>{
+    const timeEl = el.querySelector('.feed-time');
+    if(!timeEl) return;
+    const cur = timeEl.textContent;
+    if(cur === 'just now') timeEl.textContent = '5 sec ago';
+    else if(cur.includes('sec')){
+      const n = parseInt(cur);
+      if(n < 55) timeEl.textContent = (n+5) + ' sec ago';
+      else timeEl.textContent = '1 min ago';
+    } else if(cur.includes('min')){
+      const n = parseInt(cur) || 1;
+      timeEl.textContent = (n+1) + ' min ago';
+    }
+  });
+}
+
+function injectNewRedemption(){
+  const item = randomItem();
+  if(!item) return;
+  const container = document.getElementById('overviewLiveFeed');
+  if(!container) return;
+
+  ageTimes(container);
+
+  const brandTag = item.brand ? ` · <b>${item.brand}</b>` : '';
+  const div = document.createElement('div');
+  div.className = 'feed-item';
+  div.innerHTML = `<div class="feed-avatar">${item.i}</div><div class="feed-content"><div class="feed-line1">${item.n} · ${item.store} · ${item.sku}${brandTag}</div><div class="feed-line2">OCR confidence ${item.conf}% · Code: ${item.code} · ${item.tag}</div></div><div style="text-align:right;"><div class="feed-amount" style="color:#10b981;">${item.amt}</div><div class="feed-time">just now</div></div>`;
+
+  container.insertBefore(div, container.firstChild);
+  while(container.children.length > 5) container.removeChild(container.lastChild);
+
+  const redEl = document.getElementById('kpiRedemptions');
+  if(redEl){
+    const cur = parseInt(redEl.textContent.replace(/,/g,'')) || 0;
+    redEl.textContent = (cur+1).toLocaleString();
+  }
+}
+
+// ============ DATE PICKER ============
+let currentDateRange = { from: null, to: null, label: '' };
+
+function formatDate(dateStr){
+  const d = new Date(dateStr);
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+function applyCustomRange(){
+  const from = document.getElementById('dateFrom').value;
+  const to = document.getElementById('dateTo').value;
+  if(!from || !to) return;
+  if(new Date(from) > new Date(to)){
+    alert('"From" date must be before "To" date.');
+    return;
+  }
+  currentDateRange.from = new Date(from);
+  currentDateRange.to = new Date(to);
+  currentDateRange.label = `${formatDate(from)} → ${formatDate(to)}`;
+  updatePageSubtitle();
+}
+
+function updatePageSubtitle(){
+  const sub = document.getElementById('pageSubtitle');
+  if(sub){
+    const rangeText = currentDateRange.label || 'Select date range';
+    sub.textContent = rangeText;
+  }
+}
+
+
+// Default to last 30 days on load
+const today = new Date();
+const thirtyAgo = new Date();
+thirtyAgo.setDate(today.getDate() - 30);
+document.getElementById('dateFrom').value = thirtyAgo.toISOString().split('T')[0];
+document.getElementById('dateTo').value = today.toISOString().split('T')[0];
+applyCustomRange();
+
+updateAll();
+
+function startTicker(){
+  const delay = 3000 + Math.random()*3000;
+  setTimeout(()=>{
+    if(currentPage === 'overview') injectNewRedemption();
+    startTicker();
+  }, delay);
+}
+startTicker();
+</script>
+</body>
+</html>
