@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>CashBalik — Brand Dashboard</title>
+<title>CashBalik Brand Dashboard</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
   body { background:#f5f7fa; color:#1a202c; }
@@ -230,7 +230,7 @@
     <div class="nav-item active" data-page="overview" onclick="setPage('overview')">📊 Overview</div>
     <div class="nav-item" data-page="campaigns" onclick="setPage('campaigns')">🎯 Campaigns</div>
     <div class="nav-item" data-page="live" onclick="setPage('live')">📡 Live Redemptions</div>
-    <div class="nav-item" data-page="switcher" onclick="setPage('switcher')">🔄 Switcher Insights</div>
+    <div class="nav-item" data-page="basket" onclick="setPage('basket')">🧺 Basket Insights</div>
     <div class="nav-item admin-only hidden" data-page="billing" id="billingNav" onclick="setPage('billing')">💰 Billing</div>
 
     <div class="user-card">
@@ -428,58 +428,58 @@
       </div>
     </div>
 
-    <!-- ============ SWITCHER INSIGHTS ============ -->
-    <div id="page-switcher" class="hidden">
-      <div class="kpi-grid">
-        <div class="kpi-card">
-          <div class="kpi-label">Total Switchers <i class="info" data-tip="Customers stolen from competitor brands.">i</i></div>
-          <div class="kpi-value" id="kpiSwitchers">1,247</div>
-          <div class="kpi-delta">↑ 31% vs last month</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">Switcher Rate <i class="info" data-tip="% of redemptions from competitor switchers.">i</i></div>
-          <div class="kpi-value">43.8%</div>
-          <div class="kpi-delta">↑ 7.1pts</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">Defection Alerts <i class="info" data-tip="Your customers switching to competitors.">i</i></div>
-          <div class="kpi-value" style="color:#ef4444;">87</div>
-          <div class="kpi-delta down">↑ 12 this week</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">Top Co-Purchase <i class="info" data-tip="Other items bought with your product.">i</i></div>
-          <div class="kpi-value" style="font-size:18px;" id="kpiCoPurchase">Indomilk UHT</div>
-          <div class="kpi-delta">In 28% of baskets</div>
-        </div>
-      </div>
-
+        <!-- ============ BASKET INSIGHTS ============ -->
+    <div id="page-basket" class="hidden">
       <div class="section">
-        <div class="section-title">Switched From → To Your Brand <i class="info" data-tip="Which competitors customers left to buy you.">i</i><span class="section-subtitle">Last 90 days</span></div>
-        <div id="switcherFlow"></div>
+        <div class="section-title">Basket Insights<span class="section-subtitle">Based on full receipt data</span></div>
+        <div style="font-size:13px;color:#64748b;margin-top:-8px;">Every receipt your customers submit reveals their full shopping basket - what else they bought, which other brands fill their cart, and where your product sits in their wallet share.</div>
       </div>
 
       <div class="grid-2">
         <div class="section">
-          <div class="section-title">Co-Purchase Basket <i class="info" data-tip="Other items in the same receipt.">i</i></div>
+          <div class="section-title">Top Co-Purchased Products <i class="info" data-tip="Products most often bought in the same receipt as yours.">i</i></div>
           <table>
-            <thead><tr><th>Product</th><th>Co-Purchase Rate</th></tr></thead>
-            <tbody id="coPurchaseTable"></tbody>
+            <thead><tr><th>Product</th><th>Category</th><th>% of Baskets</th></tr></thead>
+            <tbody id="coProductsTable"></tbody>
           </table>
         </div>
         <div class="section">
-          <div class="section-title">Defection Alert: Recent Losses <i class="info" data-tip="Your repeat buyers who switched away.">i</i></div>
+          <div class="section-title">Brands in the Same Basket <i class="info" data-tip="Which other brands your customers also shop with.">i</i></div>
           <table>
-            <thead><tr><th>Customer</th><th>Switched To</th><th>Was Loyal For</th></tr></thead>
+            <thead><tr><th>Brand</th><th>% of Baskets</th><th>Relationship</th></tr></thead>
+            <tbody id="coBrandsTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="section">
+          <div class="section-title">Category Mix in Baskets <i class="info" data-tip="What product categories fill your customers' carts.">i</i></div>
+          <div id="categoryMix"></div>
+        </div>
+        <div class="section">
+          <div class="section-title">Basket Composition <i class="info" data-tip="Stats about what's in your customers' carts.">i</i></div>
+          <table>
             <tbody>
-              <tr><td>+62 812 ***4521</td><td>Top Coffee</td><td>8 months</td></tr>
-              <tr><td>+62 856 ***1873</td><td>Nescafé Gold</td><td>14 months</td></tr>
-              <tr><td>+62 813 ***9024</td><td>Good Day</td><td>5 months</td></tr>
-              <tr><td>+62 819 ***3367</td><td>Top Coffee</td><td>11 months</td></tr>
+              <tr><td>Avg items per receipt</td><td style="text-align:right;font-weight:700;" id="basketAvgItems">—</td></tr>
+              <tr><td>Avg basket value</td><td style="text-align:right;font-weight:700;" id="basketAvgValue">—</td></tr>
+              <tr><td>Your product's share of basket <i class="info" data-tip="What % of total receipt value your product accounts for.">i</i></td><td style="text-align:right;font-weight:700;" id="basketShare">—</td></tr>
+              <tr><td>Single-item receipts <i class="info" data-tip="Receipts where ONLY your product was bought.">i</i></td><td style="text-align:right;font-weight:700;" id="basketSingle">—</td></tr>
+              <tr><td>Mega baskets (10+ items)</td><td style="text-align:right;font-weight:700;" id="basketMega">—</td></tr>
             </tbody>
           </table>
         </div>
       </div>
+
+      <div class="section">
+        <div class="section-title">Top Product Combos <i class="info" data-tip="Most common 3-item combinations that include your product.">i</i></div>
+        <table>
+          <thead><tr><th>Combo</th><th>Frequency</th></tr></thead>
+          <tbody id="combosTable"></tbody>
+        </table>
+      </div>
     </div>
+
 
     <!-- ============ BILLING (admin only) ============ -->
     <div id="page-billing" class="hidden">
@@ -644,7 +644,37 @@ const brandData = {
       {i:'BS', n:'Budi S.', store:'Alfamart Kelapa Gading', sku:'Beng Beng Maxx', conf:91, code:'BENGBENG3', tag:'Switcher (was Top)', amt:'+Rp 3,000', t:'47 sec ago'},
       {i:'DP', n:'Dewi P.', store:'Shopee', sku:'Kopiko Coffee Candy 150g', conf:88, code:'KOPIKO5K', tag:'Repeat buyer', amt:'+Rp 5,000', t:'1 min ago'},
       {i:'AK', n:'Andi K.', store:'Indomaret Tebet', sku:'Roma Malkist', conf:73, code:'ROMA10K', tag:'Manual review queue ⚠️', amt:'Pending', t:'2 min ago'},
-    ]
+    ],
+        basket:{
+      coProducts:[
+        {product:'Indomilk UHT 250ml', cat:'Beverage', pct:28},
+        {product:'Indomie Goreng', cat:'Instant Food', pct:22},
+        {product:'Aqua 600ml', cat:'Beverage', pct:19},
+        {product:'SilverQueen Chocolate', cat:'Snack', pct:14},
+        {product:'Teh Pucuk Harum', cat:'Beverage', pct:11}
+      ],
+      coBrands:[
+        {brand:'Mayora', pct:48, rel:'Complementary'},
+        {brand:'Indofood', pct:34, rel:'Adjacent'},
+        {brand:'Unilever', pct:21, rel:'Adjacent'},
+        {brand:'Garuda Food', pct:17, rel:'Complementary'},
+        {brand:'Top Coffee', pct:12, rel:'Competitor'}
+      ],
+      categoryMix:[
+        {cat:'F&B', pct:45},{cat:'Personal Care', pct:18},{cat:'Household', pct:15},
+        {cat:'Snacks', pct:12},{cat:'Tobacco', pct:6},{cat:'Other', pct:4}
+      ],
+      composition:{avgItems:'8.4', avgValue:'Rp 87,500', share:'4.6%', single:'8%', mega:'34%'},
+      combos:[
+        {combo:'Your Product + Indomilk + Beng Beng', freq:'18%'},
+        {combo:'Your Product + Aqua + Indomie', freq:'14%'},
+        {combo:'Your Product + Roma + SilverQueen', freq:'11%'},
+        {combo:'Your Product + Teh Pucuk + Chitato', freq:'9%'},
+        {combo:'Your Product + Floridina + Roma', freq:'7%'}
+      ]
+    }
+
+    
   },
   wings: {
     name:'Wings Group', red:'1,923', cash:'Rp 8.7M', cac:'Rp 4,524', nb:'58.1%',
@@ -659,7 +689,37 @@ const brandData = {
       {i:'NK', n:'Nurul K.', store:'Alfamart Cipinang', sku:'Mie Sedaap Korean Spicy', conf:94, code:'SEDAAP4K', tag:'Switcher (was Indomie)', amt:'+Rp 4,000', t:'8 sec ago'},
       {i:'YP', n:'Yoga P.', store:'Indomaret Pondok Indah', sku:'Floridina Orange', conf:97, code:'FLORIDINA2', tag:'New buyer ✨', amt:'+Rp 2,000', t:'34 sec ago'},
       {i:'SI', n:'Sinta I.', store:'Tokopedia', sku:'Mie Sedaap Goreng x10', conf:92, code:'SEDAAP4K', tag:'Repeat buyer', amt:'+Rp 4,000', t:'1 min ago'},
-    ]
+    ],
+
+        basket:{
+      coProducts:[
+        {product:'Indomilk UHT 250ml', cat:'Beverage', pct:28},
+        {product:'Indomie Goreng', cat:'Instant Food', pct:22},
+        {product:'Aqua 600ml', cat:'Beverage', pct:19},
+        {product:'SilverQueen Chocolate', cat:'Snack', pct:14},
+        {product:'Teh Pucuk Harum', cat:'Beverage', pct:11}
+      ],
+      coBrands:[
+        {brand:'Mayora', pct:48, rel:'Complementary'},
+        {brand:'Indofood', pct:34, rel:'Adjacent'},
+        {brand:'Unilever', pct:21, rel:'Adjacent'},
+        {brand:'Garuda Food', pct:17, rel:'Complementary'},
+        {brand:'Top Coffee', pct:12, rel:'Competitor'}
+      ],
+      categoryMix:[
+        {cat:'F&B', pct:45},{cat:'Personal Care', pct:18},{cat:'Household', pct:15},
+        {cat:'Snacks', pct:12},{cat:'Tobacco', pct:6},{cat:'Other', pct:4}
+      ],
+      composition:{avgItems:'8.4', avgValue:'Rp 87,500', share:'4.6%', single:'8%', mega:'34%'},
+      combos:[
+        {combo:'Your Product + Indomilk + Beng Beng', freq:'18%'},
+        {combo:'Your Product + Aqua + Indomie', freq:'14%'},
+        {combo:'Your Product + Roma + SilverQueen', freq:'11%'},
+        {combo:'Your Product + Teh Pucuk + Chitato', freq:'9%'},
+        {combo:'Your Product + Floridina + Roma', freq:'7%'}
+      ]
+    }
+
   },
   indofood: {
     name:'Indofood', red:'3,412', cash:'Rp 15.2M', cac:'Rp 4,455', nb:'54.7%',
@@ -675,7 +735,37 @@ const brandData = {
       {i:'WP', n:'Wati P.', store:'Indomaret Cilandak', sku:'Indomie Goreng x5', conf:98, code:'INDOMIE3K', tag:'Repeat buyer', amt:'+Rp 3,000', t:'5 sec ago'},
       {i:'HG', n:'Hadi G.', store:'Alfamart Kemang', sku:'Pop Mie Ayam Bawang', conf:95, code:'POPMIE2K', tag:'Switcher (was Mie Sedaap)', amt:'+Rp 2,000', t:'22 sec ago'},
       {i:'LM', n:'Lia M.', store:'Hypermart', sku:'Chitato Lite Salt', conf:89, code:'CHITATO5', tag:'New buyer ✨', amt:'+Rp 5,000', t:'1 min ago'},
-    ]
+    ],
+
+        basket:{
+      coProducts:[
+        {product:'Indomilk UHT 250ml', cat:'Beverage', pct:28},
+        {product:'Indomie Goreng', cat:'Instant Food', pct:22},
+        {product:'Aqua 600ml', cat:'Beverage', pct:19},
+        {product:'SilverQueen Chocolate', cat:'Snack', pct:14},
+        {product:'Teh Pucuk Harum', cat:'Beverage', pct:11}
+      ],
+      coBrands:[
+        {brand:'Mayora', pct:48, rel:'Complementary'},
+        {brand:'Indofood', pct:34, rel:'Adjacent'},
+        {brand:'Unilever', pct:21, rel:'Adjacent'},
+        {brand:'Garuda Food', pct:17, rel:'Complementary'},
+        {brand:'Top Coffee', pct:12, rel:'Competitor'}
+      ],
+      categoryMix:[
+        {cat:'F&B', pct:45},{cat:'Personal Care', pct:18},{cat:'Household', pct:15},
+        {cat:'Snacks', pct:12},{cat:'Tobacco', pct:6},{cat:'Other', pct:4}
+      ],
+      composition:{avgItems:'8.4', avgValue:'Rp 87,500', share:'4.6%', single:'8%', mega:'34%'},
+      combos:[
+        {combo:'Your Product + Indomilk + Beng Beng', freq:'18%'},
+        {combo:'Your Product + Aqua + Indomie', freq:'14%'},
+        {combo:'Your Product + Roma + SilverQueen', freq:'11%'},
+        {combo:'Your Product + Teh Pucuk + Chitato', freq:'9%'},
+        {combo:'Your Product + Floridina + Roma', freq:'7%'}
+      ]
+    }
+
   },
   wardah: {
     name:'Wardah / Paragon', red:'1,205', cash:'Rp 9.6M', cac:'Rp 7,968', nb:'71.2%',
@@ -691,7 +781,37 @@ const brandData = {
       {i:'RD', n:'Rara D.', store:'Sociolla', sku:'Wardah Lightening Serum', conf:96, code:'WARDAH8K', tag:'Switcher (was Skintific)', amt:'+Rp 8,000', t:'18 sec ago'},
       {i:'AP', n:'Anisa P.', store:'Watsons Plaza Indonesia', sku:'Make Over Lip Cream', conf:93, code:'MAKEOVER10', tag:'New buyer ✨', amt:'+Rp 10,000', t:'52 sec ago'},
       {i:'TR', n:'Tania R.', store:'Shopee', sku:'Emina Bright Stuff', conf:90, code:'EMINA5K', tag:'New buyer ✨', amt:'+Rp 5,000', t:'2 min ago'},
-    ]
+    ],
+
+        basket:{
+      coProducts:[
+        {product:'Indomilk UHT 250ml', cat:'Beverage', pct:28},
+        {product:'Indomie Goreng', cat:'Instant Food', pct:22},
+        {product:'Aqua 600ml', cat:'Beverage', pct:19},
+        {product:'SilverQueen Chocolate', cat:'Snack', pct:14},
+        {product:'Teh Pucuk Harum', cat:'Beverage', pct:11}
+      ],
+      coBrands:[
+        {brand:'Mayora', pct:48, rel:'Complementary'},
+        {brand:'Indofood', pct:34, rel:'Adjacent'},
+        {brand:'Unilever', pct:21, rel:'Adjacent'},
+        {brand:'Garuda Food', pct:17, rel:'Complementary'},
+        {brand:'Top Coffee', pct:12, rel:'Competitor'}
+      ],
+      categoryMix:[
+        {cat:'F&B', pct:45},{cat:'Personal Care', pct:18},{cat:'Household', pct:15},
+        {cat:'Snacks', pct:12},{cat:'Tobacco', pct:6},{cat:'Other', pct:4}
+      ],
+      composition:{avgItems:'8.4', avgValue:'Rp 87,500', share:'4.6%', single:'8%', mega:'34%'},
+      combos:[
+        {combo:'Your Product + Indomilk + Beng Beng', freq:'18%'},
+        {combo:'Your Product + Aqua + Indomie', freq:'14%'},
+        {combo:'Your Product + Roma + SilverQueen', freq:'11%'},
+        {combo:'Your Product + Teh Pucuk + Chitato', freq:'9%'},
+        {combo:'Your Product + Floridina + Roma', freq:'7%'}
+      ]
+    }
+
   },
   kopikenangan: {
     name:'Kopi Kenangan', red:'2,156', cash:'Rp 10.8M', cac:'Rp 5,009', nb:'68.4%',
@@ -706,7 +826,37 @@ const brandData = {
       {i:'FA', n:'Farah A.', store:'Kopi Kenangan Senayan', sku:'Kopi Mantan Tetap', conf:97, code:'MANTAN5K', tag:'Repeat buyer', amt:'+Rp 5,000', t:'9 sec ago'},
       {i:'RV', n:'Rio V.', store:'GrabFood', sku:'Kenangan Latte + Pastry', conf:92, code:'HITS3K', tag:'Switcher (was Janji Jiwa)', amt:'+Rp 3,000', t:'41 sec ago'},
       {i:'NS', n:'Nadya S.', store:'Kopi Kenangan Grand Indo', sku:'Kopi Kenangan Hits', conf:95, code:'HITS3K', tag:'New buyer ✨', amt:'+Rp 3,000', t:'1 min ago'},
-    ]
+    ],
+
+        basket:{
+      coProducts:[
+        {product:'Indomilk UHT 250ml', cat:'Beverage', pct:28},
+        {product:'Indomie Goreng', cat:'Instant Food', pct:22},
+        {product:'Aqua 600ml', cat:'Beverage', pct:19},
+        {product:'SilverQueen Chocolate', cat:'Snack', pct:14},
+        {product:'Teh Pucuk Harum', cat:'Beverage', pct:11}
+      ],
+      coBrands:[
+        {brand:'Mayora', pct:48, rel:'Complementary'},
+        {brand:'Indofood', pct:34, rel:'Adjacent'},
+        {brand:'Unilever', pct:21, rel:'Adjacent'},
+        {brand:'Garuda Food', pct:17, rel:'Complementary'},
+        {brand:'Top Coffee', pct:12, rel:'Competitor'}
+      ],
+      categoryMix:[
+        {cat:'F&B', pct:45},{cat:'Personal Care', pct:18},{cat:'Household', pct:15},
+        {cat:'Snacks', pct:12},{cat:'Tobacco', pct:6},{cat:'Other', pct:4}
+      ],
+      composition:{avgItems:'8.4', avgValue:'Rp 87,500', share:'4.6%', single:'8%', mega:'34%'},
+      combos:[
+        {combo:'Your Product + Indomilk + Beng Beng', freq:'18%'},
+        {combo:'Your Product + Aqua + Indomie', freq:'14%'},
+        {combo:'Your Product + Roma + SilverQueen', freq:'11%'},
+        {combo:'Your Product + Teh Pucuk + Chitato', freq:'9%'},
+        {combo:'Your Product + Floridina + Roma', freq:'7%'}
+      ]
+    }
+
   },
   // 'all' is now COMPUTED automatically — see recomputeAll() below.
   // The placeholder values here only exist so dashboard doesn't break before first updateAll() runs.
@@ -930,15 +1080,63 @@ function setRole(r){
 function setPage(p){
   currentPage = p;
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active', n.dataset.page===p));
-  ['overview','campaigns','live','switcher','billing'].forEach(pg=>{
+  ['overview','campaigns','live','basket','billing'].forEach(pg=>{
     const el = document.getElementById('page-'+pg);
     if(el) el.classList.toggle('hidden', pg!==p);
   });
   document.getElementById('pageTitle').textContent = {
     overview:'Overview', campaigns:'Campaigns', live:'Live Redemptions',
-    switcher:'Switcher Insights', billing:'Billing & Revenue'
+    basket:'Basket Insights', billing:'Billing & Revenue'
   }[p];
 }
+
+function updateBasket(){
+  const d = brandData[currentBrand];
+  if(!d || !d.basket) return;
+  const bk = d.basket;
+
+  // Co-purchased products
+  const coProdEl = document.getElementById('coProductsTable');
+  if(coProdEl) coProdEl.innerHTML = bk.coProducts.map(p =>
+    `<tr><td>${p.product}</td><td>${p.cat}</td><td>${p.pct}%</td></tr>`
+  ).join('') || '<tr><td colspan="3" style="color:#94a3b8;text-align:center;padding:20px;">No data yet.</td></tr>';
+
+  // Co-purchased brands with colored relationship tags
+  const coBrandEl = document.getElementById('coBrandsTable');
+  if(coBrandEl) coBrandEl.innerHTML = bk.coBrands.map(br => {
+    const color = br.rel === 'Competitor' ? '#fee2e2' : br.rel === 'Complementary' ? '#dcfce7' : '#dbeafe';
+    const text = br.rel === 'Competitor' ? '#991b1b' : br.rel === 'Complementary' ? '#065f46' : '#1e40af';
+    return `<tr><td>${br.brand}</td><td>${br.pct}%</td><td><span style="background:${color};color:${text};padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;">${br.rel}</span></td></tr>`;
+  }).join('') || '<tr><td colspan="3" style="color:#94a3b8;text-align:center;padding:20px;">No data yet.</td></tr>';
+
+  // Category mix as horizontal bars
+  const catEl = document.getElementById('categoryMix');
+  if(catEl) catEl.innerHTML = bk.categoryMix.map(c => `
+    <div style="margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;">
+        <span>${c.cat}</span><span style="font-weight:600;">${c.pct}%</span>
+      </div>
+      <div style="background:#f1f5f9;border-radius:4px;height:8px;overflow:hidden;">
+        <div style="background:linear-gradient(to right,#10b981,#34d399);width:${c.pct}%;height:100%;"></div>
+      </div>
+    </div>
+  `).join('') || '<div style="color:#94a3b8;font-size:13px;">No data yet.</div>';
+
+  // Basket composition stats
+  const set = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
+  set('basketAvgItems', bk.composition.avgItems);
+  set('basketAvgValue', bk.composition.avgValue);
+  set('basketShare', bk.composition.share);
+  set('basketSingle', bk.composition.single);
+  set('basketMega', bk.composition.mega);
+
+  // Top combos
+  const combosEl = document.getElementById('combosTable');
+  if(combosEl) combosEl.innerHTML = bk.combos.map(c =>
+    `<tr><td>${c.combo}</td><td>${c.freq}</td></tr>`
+  ).join('') || '<tr><td colspan="2" style="color:#94a3b8;text-align:center;padding:20px;">No data yet.</td></tr>';
+}
+
 
 function setBrand(b){
   if(lockedBrand) return; // ignore brand changes when locked
@@ -957,8 +1155,6 @@ function updateAll(){
   document.getElementById('kpiCashback').textContent = d.cash;
   document.getElementById('kpiCac').textContent = d.cac;
   document.getElementById('kpiNewBuyer').textContent = d.nb;
-  document.getElementById('kpiSwitchers').textContent = d.switchers;
-  document.getElementById('kpiCoPurchase').textContent = d.topCoP;
   if(role==='brand') document.getElementById('userMeta').textContent = 'Brand Manager · ' + d.name;
   document.getElementById('contextPill').textContent = (role==='admin' ? '🛡️ Admin View · ' : '📍 ') + d.name;
 
@@ -980,15 +1176,6 @@ function updateAll(){
   }
   document.getElementById('campaignsBody').innerHTML = cBody;
 
-  let flow = '';
-  d.switched.forEach(s=>{
-    flow += `<div class="flow-row"><div class="flow-from">${s.from}</div><div class="flow-arrow">→</div><div class="flow-bar"><div class="flow-bar-fill" style="width:${s.pct*2.5}%"></div></div><div class="flow-count">${s.n} (${s.pct}%)</div></div>`;
-  });
-  document.getElementById('switcherFlow').innerHTML = flow;
-
-  let cop = '';
-  d.cop.forEach(c=>{ cop += `<tr><td>${c.p}</td><td>${c.r}</td></tr>`; });
-  document.getElementById('coPurchaseTable').innerHTML = cop;
 
   let feed = '';
   let feedItems = d.feed;
@@ -1010,8 +1197,10 @@ function updateAll(){
   const ovEl = document.getElementById('overviewLiveFeed');
   if(ovEl) ovEl.innerHTML = ovFeed || '<div style="color:#94a3b8; font-size:13px; padding:20px 0;">No live redemptions for this view.</div>';
 
-  renderCampaignAlerts();
+    renderCampaignAlerts();
   renderCampaignPerf();
+  updateBasket();
+
 }
 
 // ============ LIVE TICKER ============
@@ -1164,6 +1353,7 @@ applyCustomRange();
 
 updateAll();
 
+
 function startTicker(){
   const delay = 3000 + Math.random()*3000;
   setTimeout(()=>{
@@ -1175,4 +1365,5 @@ startTicker();
 </script>
 </body>
 </html>
+
 
